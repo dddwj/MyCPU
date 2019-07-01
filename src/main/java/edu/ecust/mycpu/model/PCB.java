@@ -8,22 +8,30 @@ public class PCB {
 
     /*进程名称*/
     private String name;
+
     /*进程优先级，数字越大优先级越高*/
     private Integer prio;
+
     /*进程轮转时间片时间*/
     private Integer round;
+
     /*进程的到达时间*/
     private Integer arrivalTime;
+
     /*进程总共需要占用的CPU时间*/
     private Integer serviceTime;
+
     /*进程已占用CPU的处理时间*/
     private Integer cpuTime;
-    /*进程总还需占用的CPU时间*/
+
+    /*进程还需占用的CPU时间*/
     private Integer remainNeedTime;
+
     /*进程计数器*/
     private Integer count;
-    /*进程的状态*/
-    private Integer state;
+
+    /*进程的状态,0就绪,1运行,2已完成*/
+    private State state;
 
     public String getName() {
         return name;
@@ -89,11 +97,11 @@ public class PCB {
         this.count = count;
     }
 
-    public Integer getState() {
+    public State getState() {
         return state;
     }
 
-    public void setState(Integer state) {
+    public void setState(State state) {
         this.state = state;
     }
 
@@ -108,7 +116,6 @@ public class PCB {
                 ", cpuTime=" + cpuTime +
                 ", remainNeedTime=" + remainNeedTime +
                 ", count=" + count +
-                ", state=" + state +
                 '}';
     }
 }
