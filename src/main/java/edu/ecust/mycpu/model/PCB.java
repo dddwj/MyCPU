@@ -10,14 +10,18 @@ public class PCB {
     private String name;
     /*进程优先级，数字越大优先级越高*/
     private Integer prio;
-    /*进程轮转时间片*/
+    /*进程轮转时间片时间*/
     private Integer round;
-    /*进程占用CPU的处理时间*/
+    /*进程的到达时间*/
+    private Integer arrivalTime;
+    /*进程总共需要占用的CPU时间*/
+    private Integer serviceTime;
+    /*进程已占用CPU的处理时间*/
     private Integer cpuTime;
+    /*进程总还需占用的CPU时间*/
+    private Integer remainNeedTime;
     /*进程计数器*/
     private Integer count;
-    /*进程完成仍需的CPU时间*/
-    private Integer needTime;
     /*进程的状态*/
     private Integer state;
 
@@ -37,12 +41,44 @@ public class PCB {
         this.prio = prio;
     }
 
+    public Integer getRound() {
+        return round;
+    }
+
+    public void setRound(Integer round) {
+        this.round = round;
+    }
+
+    public Integer getArrivalTime() {
+        return arrivalTime;
+    }
+
+    public void setArrivalTime(Integer arrivalTime) {
+        this.arrivalTime = arrivalTime;
+    }
+
+    public Integer getServiceTime() {
+        return serviceTime;
+    }
+
+    public void setServiceTime(Integer serviceTime) {
+        this.serviceTime = serviceTime;
+    }
+
     public Integer getCpuTime() {
         return cpuTime;
     }
 
     public void setCpuTime(Integer cpuTime) {
         this.cpuTime = cpuTime;
+    }
+
+    public Integer getRemainNeedTime() {
+        return remainNeedTime;
+    }
+
+    public void setRemainNeedTime(Integer remainNeedTime) {
+        this.remainNeedTime = remainNeedTime;
     }
 
     public Integer getCount() {
@@ -53,14 +89,6 @@ public class PCB {
         this.count = count;
     }
 
-    public Integer getNeedTime() {
-        return needTime;
-    }
-
-    public void setNeedTime(Integer needTime) {
-        this.needTime = needTime;
-    }
-
     public Integer getState() {
         return state;
     }
@@ -69,23 +97,17 @@ public class PCB {
         this.state = state;
     }
 
-    public Integer getRound() {
-        return round;
-    }
-
-    public void setRound(Integer round) {
-        this.round = round;
-    }
-
     @Override
     public String toString() {
-        return "PrioPCB{" +
+        return "PCB{" +
                 "name='" + name + '\'' +
                 ", prio=" + prio +
                 ", round=" + round +
+                ", arrivalTime=" + arrivalTime +
+                ", serviceTime=" + serviceTime +
                 ", cpuTime=" + cpuTime +
+                ", remainNeedTime=" + remainNeedTime +
                 ", count=" + count +
-                ", needTime=" + needTime +
                 ", state=" + state +
                 '}';
     }
