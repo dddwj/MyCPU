@@ -14,7 +14,7 @@ public class MyCpuApplicationTests {
     @Test
     public void contextLoads() {
         PCB pcb = new PCB();
-        pcb.setState(State.ready);
+        pcb.setState(State.READY);
         System.out.println(pcb.getState());
     }
 
