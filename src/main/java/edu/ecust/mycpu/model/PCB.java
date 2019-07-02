@@ -30,7 +30,7 @@ public class PCB {
     /*进程计数器*/
     private Integer count;
 
-    /*进程的状态,0就绪,1运行,2已完成*/
+    /*进程的状态,0阻塞,1就绪,2正在运行,3完成*/
     private State state;
 
     public String getName() {
