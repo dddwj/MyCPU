@@ -8,8 +8,10 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -21,8 +23,10 @@ public class MyCpuApplicationTests {
         List<PCB> runList = new LinkedList<>();
         List<PCB> readyList = new LinkedList<>();
         List<PCB> finishList = new LinkedList<>();
-        RoundListService rs = new RoundListService(unreachedList,readyList,runList,finishList,3);
+        Map<Integer, Map<String,List<PCB>>> allData = new HashMap<>();
+        RoundListService rs = new RoundListService(unreachedList,readyList,runList,finishList,allData,3);
         rs.init();
+        rs.sortUnreachedList();
         rs.run();
         //queue可以改
 //        List<PCB> q = new LinkedList<>();
