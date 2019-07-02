@@ -20,6 +20,9 @@ public class RoundListService {
     /*就绪进程队列*/
     private Queue<PCB> readyList;
 
+    /*运行进程队列*/
+    private Queue<PCB> runList;
+
     /*已完成进程队列*/
     private Queue<PCB> finishList;
 
@@ -49,7 +52,7 @@ public class RoundListService {
             pcb.setServiceTime(p[i][1]);
             pcb.setCpuTime(p[i][2]);
             pcb.setRemainNeedTime(p[i][3]);
-            pcb.setState(State.unreached);
+            pcb.setState(State.BLOCK_UP);
             unreachedList.add(pcb);
         }
 
@@ -65,12 +68,14 @@ public class RoundListService {
 
     /*模拟进程运行*/
     public void run(){
+        if(unreachedList.isEmpty()&&readyList.isEmpty())
+            return;
         while (true){
             //将已经到达的进程放入就绪队列
             if(!unreachedList.isEmpty()){
                 for (PCB p: unreachedList) {
                     if(p.getArrivalTime()==currentTime){
-                        p.setState(State.ready);
+                        p.setState(State.READY);
                         readyList.offer(p);
                     }else{
                         break;
@@ -78,40 +83,45 @@ public class RoundListService {
                 }
             }
 
-            //取就绪队列的第一个进程进行按时间片时间获得CPU服务(每次走一秒)
-            if(!readyList.isEmpty()){
-                readyList.peek().setState(State.run);
-                PCB cur = readyList.peek();
-                int cpuTime = cur.getCpuTime();
-                int remainNeedTime = cur.getRemainNeedTime();
-                int roundTime = cur.getRound();
-                cpuTime++;
-                remainNeedTime--;
-                roundTime--;
-                if(remainNeedTime==0){
-                    cur.setState(State.finish);
-                    finishList.add(cur);
-                    readyList.poll();
-                }else if(roundTime==0){
-                    cur.setRemainNeedTime(remainNeedTime);
-                    cur.setCpuTime(cpuTime);
-                    cur.setRound(round);
-                    cur.setState(State.ready);
-                    readyList.poll();
-                    readyList.offer(cur);
-                }else {
-                    readyList.peek().setCpuTime(cpuTime);
-                    readyList.peek().setRemainNeedTime(remainNeedTime);
-                    readyList.peek().setRound(roundTime);
-                }
+            //判断当前run是否为空
+            if(runList.isEmpty()){
+                //如果空取就绪队列的第一个进程放入run队列
+                // 按时间片时间获得CPU服务(每次走一秒)
+                if(!readyList.isEmpty()){
+                    readyList.peek().setState(State.RUN);
+                    PCB cur = readyList.peek();
+                    runList.offer(cur);
+                    int cpuTime = cur.getCpuTime();
+                    int remainNeedTime = cur.getRemainNeedTime();
+                    int roundTime = cur.getRound();
+                    cpuTime++;
+                    remainNeedTime--;
+                    roundTime--;
+                    if(remainNeedTime==0){
+                        cur.setState(State.FINISH);
+                        finishList.add(cur);
+                        readyList.poll();
+                    }else if(roundTime==0){
+                        cur.setRemainNeedTime(remainNeedTime);
+                        cur.setCpuTime(cpuTime);
+                        cur.setRound(round);
+                        cur.setState(State.READY);
+                        readyList.poll();
+                        readyList.offer(cur);
+                    }else {
+                        readyList.peek().setCpuTime(cpuTime);
+                        readyList.peek().setRemainNeedTime(remainNeedTime);
+                        readyList.peek().setRound(roundTime);
+                    }
 
+                }
             }
+
+
 
 
             currentTime++;
             //超时就跳出循环
-            if(unreachedList.isEmpty()&&readyList.isEmpty())
-                break;
             if(currentTime==100)
                 break;
         }

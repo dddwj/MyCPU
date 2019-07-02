@@ -7,7 +7,7 @@ package edu.ecust.mycpu.model;
 public class PCB {
 
     /*进程PID*/
-    private String PID;
+    private Integer PID;
 
     /*进程名称*/
     private String name;
@@ -35,6 +35,14 @@ public class PCB {
 
     /*进程的状态,0就绪,1运行,2已完成*/
     private State state;
+
+    public Integer getPID() {
+        return PID;
+    }
+
+    public void setPID(Integer PID) {
+        this.PID = PID;
+    }
 
     public String getName() {
         return name;

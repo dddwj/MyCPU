@@ -1,5 +1,5 @@
 package edu.ecust.mycpu.model;
 
 public enum State {
-    unreached,ready,run,finish
+    BLOCK_UP,READY,RUN,FINISH
 }

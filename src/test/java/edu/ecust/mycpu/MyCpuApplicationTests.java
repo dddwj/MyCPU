@@ -25,11 +25,14 @@ public class MyCpuApplicationTests {
         //queue可以改
         Queue<PCB> q = new LinkedList<>();
         PCB p = new PCB();
-        p.setState(State.ready);
+        p.setState(State.READY);
         q.offer(p);
         System.out.println(q.peek().getState());
-        q.peek().setState(State.finish);
+        q.peek().setState(State.READY);
         System.out.println(q.peek().getState());
+        PCB pcb = new PCB();
+        pcb.setState(State.READY);
+        System.out.println(pcb.getState());
     }
 
 }
