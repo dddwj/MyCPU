@@ -6,7 +6,7 @@ package edu.ecust.mycpu.model;
  */
 public class PCB {
 
-    /*进程PID*/
+    /*进程ID*/
     private Integer PID;
 
     /*进程名称*/
@@ -30,10 +30,12 @@ public class PCB {
     /*进程还需占用的CPU时间*/
     private Integer remainNeedTime;
 
+    /*增加完成时间*/
+
     /*进程计数器*/
     private Integer count;
 
-    /*进程的状态,0就绪,1运行,2已完成*/
+    /*进程的状态,0阻塞,1就绪,2正在运行,3完成*/
     private State state;
 
     public Integer getPID() {
@@ -129,4 +131,6 @@ public class PCB {
                 ", count=" + count +
                 '}';
     }
+
+
 }
