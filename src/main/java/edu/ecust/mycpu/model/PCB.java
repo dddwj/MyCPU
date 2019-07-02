@@ -30,6 +30,8 @@ public class PCB {
     /*进程还需占用的CPU时间*/
     private Integer remainNeedTime;
 
+    /*增加完成时间*/
+
     /*进程计数器*/
     private Integer count;
 
@@ -129,4 +131,6 @@ public class PCB {
                 ", count=" + count +
                 '}';
     }
+
+
 }
