@@ -7,7 +7,7 @@ package edu.ecust.mycpu.model;
 public class PCB {
 
     /*进程ID*/
-    private String PID;
+    private Integer PID;
 
     /*进程名称*/
     private String name;
