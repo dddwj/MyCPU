@@ -31,3 +31,5 @@ build/
 .vscode/
 
 .mvn
+
+.DS_Store
