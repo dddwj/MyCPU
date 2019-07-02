@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!--Element UI CSS-->
+    <!--<link rel="stylesheet" href="../static/css/element-ui/lib/theme-chalk/index.css">-->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+
+    <!--ECharts-->
+    <script src="../static/js/echarts.js"></script>
+    <!--<script src="https://cdn.bootcss.com/echarts/4.2.1-rc1/echarts.js"></script>-->
+    <!--<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>-->
+
+    <!--Vuejs-->
+    <script src="../static/js/vue.js"></script>
+    <!--<script src="https://unpkg.com/vue/dist/vue.js"></script>-->
+
+    <!--Element UI JS-->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <!--jQuery + RequireJS-->
+    <!--<script data-main="../static/js/main.js" src="../static/js/require.js"></script>-->
+    <script src="../static/js/jquery.js"></script>
+    <script type="text/javascript" src="../static/js/localjson.js"></script>
+</head>
+<body>
+<div id="app">
+    <!--<img src="/static/img/pic.png"/>-->
+    <el-container>
+        <el-header style="font-size: 27px;"><i class="el-icon-cpu"></i>&nbsp; 模拟进程调度 MyCPU</el-header>
+        <el-container style="height: 800px;">
+            <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
+                <el-menu :default-openeds="['1', '2']">
+                    <el-submenu index="1">
+                        <template slot="title" style="font-size: 20px; font-weight: bold;"><i class="el-icon-umbrella"></i>控制</template>
+                        <el-menu-item-group>
+                            <template slot="title">控制进程选项</template>
+                            <el-menu-item index="1-2"><i class="el-icon-arrow-left"></i>第{{current_time - 1}}秒</el-menu-item>
+                            <el-menu-item index="1-2"><i class="el-icon-arrow-right"></i>第{{current_time + 1}}秒</el-menu-item>
+                            <el-menu-item index="1-3"><i class="el-icon-d-arrow-right"></i>连续运行/开始</el-menu-item>
+                            <el-menu-item index="1-1"><i class="el-icon-video-pause"></i>暂停</el-menu-item>
+                            <el-menu-item index="1-4" @click="visible = true"><i class="el-icon-circle-plus"></i>新增进程</el-menu-item>
+                            <el-menu-item index="1-5"><i class="el-icon-remove"></i>删除进程</el-menu-item>
+                        </el-menu-item-group>
+                    </el-submenu>
+                    <el-submenu index="2">
+                        <template slot="title" style="font-size: 20px; font-weight: bold;"><i class="el-icon-pie-chart"></i>进程</template>
+                        <el-menu-item-group title="时间视角">
+                            <el-menu-item index="2-5"><i class="el-icon-watch"></i>运行过程</el-menu-item>
+                        </el-menu-item-group>
+                        <el-menu-item-group>
+                            <template slot="title">监控进程运行</template>
+                            <el-menu-item index="2-1">正在运行</el-menu-item>
+                            <el-menu-item index="2-2">就绪队列</el-menu-item>
+                            <el-menu-item index="2-3">完成队列</el-menu-item>
+                            <el-menu-item index="2-4">未到达队列</el-menu-item>
+                        </el-menu-item-group>
+                    </el-submenu>
+                </el-menu>
+            </el-aside>
+
+            <el-container>
+                <el-main>
+                    <h3 style="margin-top: 10px;">控制参数</h3>
+                    <el-row>
+                        <el-col :span="4">
+                            <el-tag>当前时间</el-tag>
+                            <el-tooltip effect="dark" content="当前时间" placement="right">
+                                <el-button type="success" size="medium" effect="light" plain>第{{ current_time }}秒</el-button>
+                            </el-tooltip>
+                        </el-col>
+                        <el-col :span="13">
+                            <el-tag>选择算法</el-tag>
+                            <el-radio v-model="alg" label="1" border style="margin-right: 0; margin-left: 0;">先进先出</el-radio>
+                            <el-radio v-model="alg" label="2" border style="margin-right: 0; margin-left: 0;">时间片轮转</el-radio>
+                            <el-radio v-model="alg" label="3" border style="margin-right: 0; margin-left: 0;">优先级队列</el-radio>
+                            <el-switch v-if="alg == 2" v-model="isPreemptive" active-color="#ff4949" inactive-color="#13ce66"
+                                       active-text="抢占式" inactive-text="非抢占式"></el-switch>
+                        </el-col>
+                        <el-col :span="7" >
+                            <el-tag>时间片大小</el-tag>
+                            <el-input-number size="medium" v-model="round"></el-input-number>
+                        </el-col>
+                    </el-row>
+
+
+                    <el-divider><i class="el-icon-user"></i></el-divider>
+                    <h3>运行过程</h3>
+                    <el-row>
+
+
+                    </el-row>
+
+                    <el-divider><i class="el-icon-user"></i></el-divider>
+                    <h3>正在运行</h3>
+                    <el-row v-if="runPCBTable">
+                        <el-table
+                                :data="runPCBTable"
+                                border
+                                style="width: 100%;"
+                                striped>
+                            <el-table-column
+                                    fixed
+                                    prop="PID"
+                                    label="PID"
+                                    width="100"
+                            >
+                            </el-table-column>
+                            <el-table-column
+                                    prop="name"
+                                    label="进程"
+                                    width="250"
+                                    >
+                                <template slot-scope="scope">
+                                    <el-tag style="font-size: larger;" v-text="scope.row.name"></el-tag>
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                    prop="prio"
+                                    label="优先级"
+                                    width="100"
+                                    >
+                            </el-table-column>
+                            <el-table-column
+                                    prop="arrivalTime"
+                                    label="到达时间"
+                                    width="100"
+                                    >
+                            </el-table-column>
+                            <el-table-column
+                                    label="操作"
+                                    width="70"
+                                    >
+                                <template slot-scope="scope">
+                                    <el-button type="danger" icon="el-icon-delete" circle></el-button>
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                    prop="progress"
+                                    fixed="right"
+                                    label="进度"
+                                    width="500">
+                                <template slot-scope="scope">
+                                    <el-progress status="success" :text-inside="true" :stroke-width="24" :percentage="scope.row.progress"></el-progress>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </el-row>
+                    <el-row v-else>
+                        还没有在运行的进程
+                    </el-row>
+
+                    <el-divider><i class="el-icon-user"></i></el-divider>
+                    <h3>就绪队列</h3>
+                    <el-row v-if="readyPCBTable">
+                        <el-col :span="15">
+                            <el-table
+                                    :data="readyPCBTable"
+                                    style="width: 100%">
+                                <el-table-column type="expand">
+                                    <template slot-scope="props">
+                                        <el-form label-position="left" inline class="demo-table-expand">
+                                            <el-form-item label="进程">
+                                                <span>{{ props.row.name }}</span>
+                                            </el-form-item>
+                                            <el-form-item label="PID">
+                                                <span>{{ props.row.PID }}</span>
+                                            </el-form-item>
+                                            <el-form-item label="优先级">
+                                                <span>{{ props.row.prio }}</span>
+                                            </el-form-item>
+                                            <el-form-item label="到达时间">
+                                                <span>{{ props.row.arrivalTime }}</span>
+                                            </el-form-item>
+                                            <el-form-item label="需CPU时间">
+                                                <span>{{ props.row.remainNeedTime }}</span>
+                                            </el-form-item>
+                                        </el-form>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        label="PID"
+                                        prop="PID" width="80">
+                                </el-table-column>
+                                <el-table-column
+                                        label="进程"
+                                        prop="name">
+                                    <template slot-scope="scope">
+                                        <el-tag style="font-size: larger;" v-text="scope.row.name"></el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        label="优先级"
+                                        prop="prio">
+                                </el-table-column>
+                                <el-table-column
+                                        label="到达时间"
+                                        prop="arrivalTime">
+                                </el-table-column>
+                                <el-table-column
+                                        label="操作"
+                                        width="70"
+                                >
+                                    <template slot-scope="scope">
+                                        <el-button type="danger" icon="el-icon-delete" circle></el-button>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        fixed="right"
+                                        label="进度"
+                                        prop="name" width="270">
+                                    <template slot-scope="scope">
+                                        <el-progress :text-inside="true" :stroke-width="24" :percentage="scope.row.progress"></el-progress>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </el-col>
+                        <el-col :span="9">
+                            <!--插入仪表盘-->
+                            <div id="gauge" style="height: 300px;"></div>
+                        </el-col>
+                    </el-row>
+                    <el-row v-else>
+                        还没有就绪的进程
+                    </el-row>
+
+
+
+                    <el-divider><i class="el-icon-user"></i></el-divider>
+                    <h3>未到达队列</h3>
+
+
+
+                    <el-divider><i class="el-icon-user"></i></el-divider>
+                    <h3>完成队列</h3>
+                    <el-row></el-row>
+                    <el-row>
+                        <el-col :span="12">
+                            <div id="rose" style="height: 300px;"></div>
+                        </el-col>
+                    </el-row>
+
+
+
+                </el-main>
+
+
+                <el-footer>Footer</el-footer>
+            </el-container>
+
+
+
+        </el-container>
+    </el-container>
+
+
+    <!--添加进程弹出框-->
+    <el-dialog :visible.sync="visible" title="Hello world">
+        <p>Try Element</p>
+    </el-dialog>
+
+
+     <!--为 ECharts 准备一个具备大小（宽高）的 DOM-->
+    <!--<div id="main" style="width: 600px;height:400px;"></div>-->
+
+
+
+</div>
+</body>
+<!--My Style-->
+<link rel="stylesheet" href="../static/css/my_css.css">
+<!--VueJS Control-->
+<script src="../static/js/VueControl.js"></script>
+<!--ECharts Control-->
+<script src="../static/js/EChartsControl.js"></script>
+</html>
