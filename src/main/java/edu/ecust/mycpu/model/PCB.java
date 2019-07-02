@@ -36,6 +36,14 @@ public class PCB {
     /*进程的状态,0阻塞,1就绪,2正在运行,3完成*/
     private State state;
 
+    public Integer getPID() {
+        return PID;
+    }
+
+    public void setPID(Integer PID) {
+        this.PID = PID;
+    }
+
     public String getName() {
         return name;
     }
