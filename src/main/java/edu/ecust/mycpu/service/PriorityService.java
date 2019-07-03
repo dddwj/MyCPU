@@ -50,6 +50,20 @@ public class PriorityService {
                 break;
             }
             /*
+            遍历未到达队列，若有当前时间即将到达的进程，将其加入就绪队列
+             */
+            if(!unreachedList.isEmpty()){
+                for(int i=0;i<unreachedList.size();i++){
+                    PCB unreachedProcess = unreachedList.get(i);
+                    if(unreachedProcess.getArrivalTime().equals(currentTime)){
+                        readyList.add(unreachedProcess);
+                        unreachedProcess.setState(State.READY);
+                        unreachedList.remove(unreachedProcess);
+                    }
+                }
+            }
+
+            /*
             有进程正在运行时，若该进程的总共需要占用的CPU时间小于已占用CPU的处理时间，那么继续运行，否则将它取出，使运行队列为空。
              */
             if(!runningList.isEmpty()){
@@ -73,6 +87,10 @@ public class PriorityService {
                     topPriorityProcess.setCpuTime(topPriorityProcess.getCpuTime()+1);
                 }
             }
+
+
+
+
         }
     }
 }
