@@ -7,6 +7,7 @@ import edu.ecust.mycpu.service.RoundListService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
@@ -19,7 +20,7 @@ import java.util.Map;
 public class RRController {
 
     @ResponseBody
-    @GetMapping("/RRData")
+    @PostMapping("/RRData")
     public Map<Integer, Map<String, List<PCB>>> sentRRData(){
         List<PCB> unreachedList = new LinkedList<>();
         List<PCB> runList = new LinkedList<>();
