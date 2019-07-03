@@ -17,24 +17,15 @@ public class MyCpuApplicationTests {
 
     @Test
     public void contextLoads() {
-        List<PCB> unreachedList = new LinkedList<>();
-        List<PCB> runList = new LinkedList<>();
-        List<PCB> readyList = new LinkedList<>();
-        List<PCB> finishList = new LinkedList<>();
-        RoundListService rs = new RoundListService(unreachedList,readyList,runList,finishList,3);
-        rs.init();
-        rs.run();
-        //queue可以改
-//        List<PCB> q = new LinkedList<>();
-//        PCB p = new PCB();
-//        p.setState(State.READY);
-//        q.offer(p);
-//        System.out.println(q.peek().getState());
-//        q.peek().setState(State.READY);
-//        System.out.println(q.peek().getState());
-//        PCB pcb = new PCB();
-//        pcb.setState(State.READY);
-//        System.out.println(pcb.getState());
+        PCB pcb = new PCB();
+        pcb.setPID(123);
+        PCB bcp = pcb;
+        System.out.println(pcb.getPID());
+        System.out.println(pcb.getPID());
+        pcb.setPID(321);
+        System.out.println(pcb.getPID());
+        System.out.println(pcb.getPID());
+
     }
 
 }

@@ -1,9 +1,11 @@
 package edu.ecust.mycpu.service;
 
 import edu.ecust.mycpu.model.PCB;
+import edu.ecust.mycpu.util.PCBComprator;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.PriorityQueue;
 
 
 @Service
@@ -12,25 +14,23 @@ public class PriorityService {
     private Integer processNum;
 
     /*正在运行进程*/
-    private Integer running;
+    private PCB running;
 
     /*未到达进程队列*/
-    private ArrayList<Integer> unreachedList;
+    private ArrayList<PCB> unreachedList;
 
     /*就绪进程队列*/
-    private ArrayList<Integer> readyList;
+    private PriorityQueue<PCB> readyList;
 
     /*已完成进程队列*/
-    private ArrayList<Integer> finishList;
+    private ArrayList<PCB> finishList;
 
     public void Priority(ArrayList<PCB> unreachedList, ArrayList<PCB> readyList, ArrayList<PCB> finishList, PCB running, Integer currentTime){
-
-    }
-
-    private boolean setProcessStatus(ArrayList<PCB> unreachedList, ArrayList<PCB> readyList, ArrayList<PCB> finishList, PCB running){
+        PCBComprator comprator = new PCBComprator();
+        PriorityQueue<PCB> readyQueue = new PriorityQueue<PCB>(processNum+10,comprator);
         for(int i=0;i<unreachedList.size();i++){
-            this.unreachedList.add(unreachedList.get(i).getPID());
+            readyQueue.add(readyList.get(i));
         }
-        return true;
+
     }
 }
