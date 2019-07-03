@@ -122,6 +122,11 @@ public class RoundListService {
                 //已运行完毕
                 if(remainNeedTime==0){
                     cur.setState(State.FINISH);
+                    cur.setFinishTime(currentTime);
+                    cur.setTurnoverTime(cur.getFinishTime()-cur.getArrivalTime());
+                    Double t = Double.valueOf(cur.getTurnoverTime())/cur.getServiceTime();
+                    java.text.DecimalFormat df =new java.text.DecimalFormat("#.00");
+                    cur.setWeightedTurnoverTime(Double.valueOf(df.format(t)));
                     //弹出runlist中进程放入finishlist;
                     runList.remove(0);
                     finishList.add(cur);
@@ -169,13 +174,7 @@ public class RoundListService {
             fi.addAll(finishList);
             currentData.put("finish",fi);
             allData.put(currentTime,currentData);
-//            allData.put(currentTime,new HashMap<String,List<PCB>>(){{
-//                put("blockup",unreachedList);
-//                put("ready",readyList);
-//                put("run",runList);
-//                put("finish",finishList);
-//            }});
-            System.out.println(allData.toString());
+//            System.out.println(allData.toString());
 
             //单元测试
             System.out.println("第"+currentTime+"秒：");

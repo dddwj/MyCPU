@@ -31,6 +31,13 @@ public class PCB {
     private Integer remainNeedTime;
 
     /*增加完成时间*/
+    private Integer finishTime;
+
+    /*周转时间*/
+    private Integer turnoverTime;
+
+    /*带权周转时间*/
+    private Double weightedTurnoverTime;
 
     /*进程计数器*/
     private Integer count;
@@ -118,19 +125,46 @@ public class PCB {
         this.state = state;
     }
 
+    public Integer getFinishTime() {
+        return finishTime;
+    }
+
+    public void setFinishTime(Integer finishTime) {
+        this.finishTime = finishTime;
+    }
+
+    public Integer getTurnoverTime() {
+        return turnoverTime;
+    }
+
+    public void setTurnoverTime(Integer turnoverTime) {
+        this.turnoverTime = turnoverTime;
+    }
+
+    public Double getWeightedTurnoverTime() {
+        return weightedTurnoverTime;
+    }
+
+    public void setWeightedTurnoverTime(Double weightedTurnoverTime) {
+        this.weightedTurnoverTime = weightedTurnoverTime;
+    }
+
     @Override
     public String toString() {
         return "PCB{" +
-                "name='" + name + '\'' +
+                "PID=" + PID +
+                ", name='" + name + '\'' +
                 ", prio=" + prio +
                 ", round=" + round +
                 ", arrivalTime=" + arrivalTime +
                 ", serviceTime=" + serviceTime +
                 ", cpuTime=" + cpuTime +
                 ", remainNeedTime=" + remainNeedTime +
+                ", finishTime=" + finishTime +
+                ", turnoverTime=" + turnoverTime +
+                ", weightedTurnoverTime=" + weightedTurnoverTime +
                 ", count=" + count +
+                ", state=" + state +
                 '}';
     }
-
-
 }
