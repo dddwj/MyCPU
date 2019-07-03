@@ -6,6 +6,9 @@ package edu.ecust.mycpu.model;
  */
 public class PCB {
 
+    /*进程ID*/
+    private Integer PID;
+
     /*进程名称*/
     private String name;
 
@@ -27,11 +30,28 @@ public class PCB {
     /*进程还需占用的CPU时间*/
     private Integer remainNeedTime;
 
+    /*增加完成时间*/
+    private Integer finishTime;
+
+    /*周转时间*/
+    private Integer turnoverTime;
+
+    /*带权周转时间*/
+    private Double weightedTurnoverTime;
+
     /*进程计数器*/
     private Integer count;
 
-    /*进程的状态,0就绪,1运行,2已完成*/
+    /*进程的状态,0阻塞,1就绪,2正在运行,3完成*/
     private State state;
+
+    public Integer getPID() {
+        return PID;
+    }
+
+    public void setPID(Integer PID) {
+        this.PID = PID;
+    }
 
     public String getName() {
         return name;
@@ -105,17 +125,46 @@ public class PCB {
         this.state = state;
     }
 
+    public Integer getFinishTime() {
+        return finishTime;
+    }
+
+    public void setFinishTime(Integer finishTime) {
+        this.finishTime = finishTime;
+    }
+
+    public Integer getTurnoverTime() {
+        return turnoverTime;
+    }
+
+    public void setTurnoverTime(Integer turnoverTime) {
+        this.turnoverTime = turnoverTime;
+    }
+
+    public Double getWeightedTurnoverTime() {
+        return weightedTurnoverTime;
+    }
+
+    public void setWeightedTurnoverTime(Double weightedTurnoverTime) {
+        this.weightedTurnoverTime = weightedTurnoverTime;
+    }
+
     @Override
     public String toString() {
         return "PCB{" +
-                "name='" + name + '\'' +
+                "PID=" + PID +
+                ", name='" + name + '\'' +
                 ", prio=" + prio +
                 ", round=" + round +
                 ", arrivalTime=" + arrivalTime +
                 ", serviceTime=" + serviceTime +
                 ", cpuTime=" + cpuTime +
                 ", remainNeedTime=" + remainNeedTime +
+                ", finishTime=" + finishTime +
+                ", turnoverTime=" + turnoverTime +
+                ", weightedTurnoverTime=" + weightedTurnoverTime +
                 ", count=" + count +
+                ", state=" + state +
                 '}';
     }
 }
