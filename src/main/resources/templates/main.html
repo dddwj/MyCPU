@@ -44,7 +44,7 @@
                         <el-radio-button label="2">时间片轮转</el-radio-button>
                         <el-radio-button label="3">优先级队列</el-radio-button>
                     </el-radio-group>
-                    <el-switch v-if="alg == 2" v-model="isPreemptive" active-color="#ff4949" inactive-color="#13ce66"
+                    <el-switch v-if="alg == 3" v-model="isPreemptive" active-color="#ff4949" inactive-color="#13ce66"
                                active-text="抢占式" inactive-text="非抢占式"></el-switch>
                 </el-col>
                 <el-col :span="4" >
@@ -60,10 +60,10 @@
                         <template slot="title" style="font-size: 20px; font-weight: bold;"><i class="el-icon-s-operation"></i>控制</template>
                         <el-menu-item-group>
                             <template slot="title">控制进程选项</template>
-                            <el-menu-item index="1-2" @click="current_time -= 1"><i class="el-icon-arrow-left"></i>第{{current_time - 1}}秒</el-menu-item>
+                            <el-menu-item index="1-3" @click="start()"><i class="el-icon-d-arrow-right"></i>连续运行/开始</el-menu-item>
                             <el-menu-item index="1-2" @click="current_time += 1"><i class="el-icon-arrow-right"></i>第{{current_time + 1}}秒</el-menu-item>
-                            <el-menu-item index="1-3"><i class="el-icon-d-arrow-right"></i>连续运行/开始</el-menu-item>
-                            <el-menu-item index="1-1"><i class="el-icon-video-pause"></i>暂停</el-menu-item>
+                            <el-menu-item index="1-1" @click="current_time -= 1" v-if="current_time > 0"><i class="el-icon-arrow-left"></i>第{{current_time - 1}}秒</el-menu-item>
+                            <el-menu-item index="1-6" @click="pause()"><i class="el-icon-video-pause"></i>暂停</el-menu-item>
                             <el-menu-item index="1-4" @click="visible = true"><i class="el-icon-circle-plus"></i>新增进程</el-menu-item>
                             <el-menu-item index="1-5"><i class="el-icon-remove"></i>删除进程</el-menu-item>
                         </el-menu-item-group>
@@ -105,7 +105,7 @@
                                                     <span>{{ props.row.name }}</span>
                                                 </el-form-item>
                                                 <el-form-item label="PID">
-                                                    <span>{{ props.row.PID }}</span>
+                                                    <span>{{ props.row.pid }}</span>
                                                 </el-form-item>
                                                 <el-form-item label="优先级">
                                                     <span>{{ props.row.prio }}</span>
@@ -121,7 +121,7 @@
                                     </el-table-column>
                                     <el-table-column
                                             label="PID"
-                                            prop="PID" width="80">
+                                            prop="pid" width="80">
                                     </el-table-column>
                                     <el-table-column
                                             label="进程"
@@ -179,8 +179,8 @@
                                                 <el-form-item label="进程">
                                                     <span>{{ props.row.name }}</span>
                                                 </el-form-item>
-                                                <el-form-item label="PID">
-                                                    <span>{{ props.row.PID }}</span>
+                                                <el-form-item label=" PID">
+                                                    <span>{{ props.row.pid }}</span>
                                                 </el-form-item>
                                                 <el-form-item label="优先级">
                                                     <span>{{ props.row.prio }}</span>
@@ -196,7 +196,7 @@
                                     </el-table-column>
                                     <el-table-column
                                             label="PID"
-                                            prop="PID" width="80">
+                                            prop="pid" width="80">
                                     </el-table-column>
                                     <el-table-column
                                             label="进程"
@@ -244,7 +244,7 @@
                             </el-row>
                         </el-col>
                         <el-col :span="9">
-                            <div id="rose" style="height: 250px;"></div>
+                            <div id="rose" style="height: 300px;"></div>
                         </el-col>
                     </el-row>
 
@@ -265,7 +265,7 @@
                                                     <span>{{ props.row.name }}</span>
                                                 </el-form-item>
                                                 <el-form-item label="PID">
-                                                    <span>{{ props.row.PID }}</span>
+                                                    <span>{{ props.row.pid }}</span>
                                                 </el-form-item>
                                                 <el-form-item label="优先级">
                                                     <span>{{ props.row.prio }}</span>
@@ -281,7 +281,7 @@
                                     </el-table-column>
                                     <el-table-column
                                             label="PID"
-                                            prop="PID" width="70">
+                                            prop="pid" width="70">
                                     </el-table-column>
                                     <el-table-column
                                             label="进程"
@@ -321,7 +321,7 @@
                                         :fit="true">
                                     <el-table-column
                                             label="PID"
-                                            prop="PID" width="70">
+                                            prop="pid" width="70">
                                     </el-table-column>
                                     <el-table-column
                                             label="进程"
@@ -387,16 +387,23 @@
 
 
     <!--添加进程弹出框-->
-    <el-dialog :visible.sync="visible" title="Hello world">
-        <p>Try Element</p>
-        <el-button @click="blockupPCBTable.push('')"></el-button>
+    <el-dialog :visible.sync="visible" title="新增进程">
+        <el-row style="margin-bottom: 20px;">
+                <el-radio-group v-model="alg">
+                    <el-radio-button label="1">先进先出</el-radio-button>
+                    <el-radio-button label="2">时间片轮转</el-radio-button>
+                    <el-radio-button label="3">优先级队列</el-radio-button>
+                    <el-switch v-if="alg == 3" v-model="isPreemptive" active-color="#ff4949" inactive-color="#13ce66"
+                               active-text="抢占式" inactive-text="非抢占式"></el-switch>
+                </el-radio-group>
+        </el-row>
+        <el-row>
+            <el-button @click="initServerDataAndList()"><i class="el-icon-circle-plus"></i>&nbsp; 随机生成一组</el-button>
+            <el-button @click="initLocalDataAndList()"><i class="el-icon-circle-plus"></i>&nbsp; 本地数据</el-button>
+        </el-row>
+        <el-divider><i class="el-icon-user"></i></el-divider>
+        <el-tag>自己设置</el-tag>
     </el-dialog>
-
-
-     <!--为 ECharts 准备一个具备大小（宽高）的 DOM-->
-    <!--<div id="main" style="width: 600px;height:400px;"></div>-->
-
-
 
 </div>
 </body>

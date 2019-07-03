@@ -1,5 +1,4 @@
-// 获取后台数据
-var PCBs = back_front;
+var PCBs;
 
 // 仪表盘option
 var gauge_opt = {
@@ -13,7 +12,7 @@ var gauge_opt = {
             detail: {formatter: '{value}项'},
             data: [{value: 20, name: '任务数量'}],
             max: 20,
-            radius: '75%'
+            radius: '90%'
         }
     ]
 };
@@ -50,7 +49,7 @@ var rose_opt = {
         {
             name: '任务数量统计',
             type: 'pie',
-            radius: [20, 80],
+            radius: [20, 60],
             roseType: 'radius',
             label: {
                 normal: {
@@ -78,7 +77,7 @@ var app = new Vue({
     data: {
         visible: false,
         alg: '1',
-        current_time: 10,
+        current_time: 0,
         round: 3,
         isPreemptive: true,
         runPCBTable: [],
@@ -111,7 +110,7 @@ var app = new Vue({
                 for (let i = 0; i < blockupPCBList.length; i++){
                     let PCB = blockupPCBList[i];
                     blockupPCBTable.push({
-                        "PID": PCB.PID,
+                        "pid": PCB.pid,
                         "name": PCB.name,
                         "prio": PCB.prio,
                         "arrivalTime": PCB.arrivalTime,
@@ -122,18 +121,22 @@ var app = new Vue({
             })();
         },
         showRunPCBTable(time) {
-            this.runPCBTable = [];
-            this.runPCBTable.push((function () {
-                let PCB = PCBs[time]["run"][0];
-                return {
-                    "PID": PCB.PID,
-                    "name": PCB.name,
-                    "prio": PCB.prio,
-                    "arrivalTime": PCB.arrivalTime,
-                    "progress": Math.round(PCB.cpuTime / PCB.serviceTime * 100),
-                    "remainNeedTime": PCB.remainNeedTime
+            this.runPCBTable = (function () {
+                let runPCBList = PCBs[time]["run"];
+                let runPCBTable = [];
+                for (let i = 0; i < runPCBList.length; i++) {
+                    let PCB = runPCBList[i];
+                    runPCBTable.push({
+                        "pid": PCB.pid,
+                        "name": PCB.name,
+                        "prio": PCB.prio,
+                        "arrivalTime": PCB.arrivalTime,
+                        "progress": Math.round(PCB.cpuTime / PCB.serviceTime * 100),
+                        "remainNeedTime": PCB.remainNeedTime
+                    });
                 }
-            })());
+                return runPCBTable;
+            })();
         },
         showReadyPCBTable(time) {
             // this.readyPCBTable = [];
@@ -143,7 +146,7 @@ var app = new Vue({
                 for (let i = 0; i < readyPCBList.length; i++) {
                     let PCB = readyPCBList[i];
                     readyPCBTable.push({
-                        "PID": PCB.PID,
+                        "pid": PCB.pid,
                         "name": PCB.name,
                         "prio": PCB.prio,
                         "arrivalTime": PCB.arrivalTime,
@@ -162,7 +165,7 @@ var app = new Vue({
                 for (let i = 0; i < finishPCBList.length; i++){
                     let PCB = finishPCBList[i];
                     finishPCBTable.push({
-                        "PID": PCB.PID,
+                        "pid": PCB.pid,
                         "name": PCB.name,
                         "prio": PCB.prio,
                         "arrivalTime": PCB.arrivalTime,
@@ -173,10 +176,69 @@ var app = new Vue({
                 }
                 return finishPCBTable;
             })();
+        },
+        start() {   // 连续运行
+            this.timer = setInterval(() => {
+                this.current_time += 1;
+            }, '500');
+        },
+        pause() {  // 暂停连续运行
+            clearInterval(this.timer);
+        },
+        initLocalDataAndList() { // 获取模拟数据
+            PCBs = back_front;
+            this.current_time = 0;
+            this.showLists(this.current_time);
+            this.visible = false;
+        },
+        initServerDataAndList() {     // 获取服务器端生成的随机数据
+            let url;
+            if (this.alg == '1') {
+                url = "/RRData";
+            }
+            if (this.alg == '2') {
+                url = "/RRData";
+            }
+            if (this.alg == '3') {
+                url = "/RRData";
+            }
+            let data = {
+                "current_time": this.current_time,
+                "round": this.round,
+                "0": {
+                    "blockup": [],
+                    "ready": [],
+                    "run": [],
+                    "finish": []
+                }
+            };
+            // 获取后台数据
+            let app = this;
+            $.ajax({
+                url: url,
+                type: "post",
+                async: false,  // 取消ajax异步功能，防止ajax外部得不到服务器的返回值
+                dataType: "json",
+                data: JSON.stringify(data),
+                success: function (res) {
+                    PCBs = res;
+                    app.current_time = 0;
+                    app.showLists(app.current_time);
+                    app.visible = false;
+                },
+                error: function (res) {
+                    app.$message({
+                        type: "warning",
+                        message: "获取失败！"
+                    });
+                    console.log(res);
+                    app.visible = false;
+                }
+            });
         }
     },
     mounted: function () {
-        this.showLists(this.current_time);
+        this.initLocalDataAndList();
         this.drawGauge();
         this.drawRose();
     },
@@ -191,6 +253,15 @@ var app = new Vue({
                 // 更新rose数据
                 rose_opt.series[0].data[2].value = this.runPCBTable.length;
                 this.roseChart.setOption(rose_opt);
+
+                // 当所有进程都结束时，停止连续运行
+                if (this.readyPCBTable.length === 0 && this.blockupPCBTable.length === 0 && newVal.length === 0){
+                    this.pause();
+                    this.$message({
+                        type: "success",
+                        message: "模拟运行结束！"
+                    })
+                }
             },
             deep: true
         },
