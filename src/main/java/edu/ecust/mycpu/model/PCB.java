@@ -1,10 +1,12 @@
 package edu.ecust.mycpu.model;
 
+import java.io.*;
+
 /**
  * @Author SYY
  * @CreateDate 2019-07-01
  */
-public class PCB {
+public class PCB implements Serializable,Cloneable {
 
     /*进程ID*/
     private Integer PID;
@@ -167,4 +169,16 @@ public class PCB {
                 ", state=" + state +
                 '}';
     }
+
+    public PCB deepClone() throws IOException,ClassNotFoundException{
+        //将对象写入流中
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+        objectOutputStream.writeObject(this);
+        //从流中取出
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+        ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+        return (PCB)objectInputStream.readObject();
+    }
+
 }
