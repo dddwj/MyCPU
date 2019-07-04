@@ -32,6 +32,9 @@ public class RoundListService {
     /*已完成进程队列*/
     private List<PCB> finishList;
 
+    /*阻塞进程队列*/
+    private List<PCB> jamList;
+
     /*时间片长度*/
     private Integer round;
 
@@ -39,7 +42,7 @@ public class RoundListService {
 
     private int[][] p={{2,8,0,8},{3,5,0,5},{1,10,0,10},{5,9,0,9},{1,4,0,4},{8,7,0,7},{10,2,0,2},{15,3,0,3},{17,6,0,6},{13,12,0,12}};
 
-    public RoundListService(Integer currentTime,List<PCB> unreachedList, List<PCB> readyList, List<PCB> runList,List<PCB> finishList, Map<Integer,Map<String,List<PCB>>> allData,Integer round) {
+    public RoundListService(Integer currentTime,List<PCB> unreachedList, List<PCB> readyList, List<PCB> runList,List<PCB> finishList,Map<Integer,Map<String,List<PCB>>> allData,Integer round) {
         this.currentTime = currentTime;
         this.processNum = 10;
         this.unreachedList = unreachedList;
@@ -143,6 +146,9 @@ public class RoundListService {
                     //弹出runlist中进程放入finishlist;
                     runList.remove(0);
                     finishList.add(cur);
+
+                    //进行阻塞判定
+
                     //readylist第一个进入runlist
                     if(!readyList.isEmpty())
                         runList.add(readyList.remove(0));
@@ -153,10 +159,15 @@ public class RoundListService {
                     //弹出runlist中进程放入readylist末尾
                     runList.remove(0);
                     readyList.add(cur);
+
+                    //进行阻塞判定
+
                     //readylist第一个进入runlist
                     runList.add(readyList.remove(0));
                 //时间片和剩余CPU时间均大于0，执行一秒操作
-                }else {
+                }
+                //是否阻塞
+                else {
                     cpuTime++;
                     remainNeedTime--;
                     roundTime--;
@@ -168,10 +179,6 @@ public class RoundListService {
                 }
             }
 
-
-//            //超时就跳出循环
-//            if(currentTime==300)
-//                return null;
 
             Map<String,List<PCB>> currentData = new HashMap<>();
             List<PCB> ur = new LinkedList<>();
@@ -209,25 +216,25 @@ public class RoundListService {
 //            System.out.println(allData.toString());
 
             //单元测试
-//            System.out.println("第"+currentTime+"秒：");
-//            System.out.println("==========================================");
-//            System.out.println("未到达队列：");
-//            for (PCB p: unreachedList) {
-//                System.out.println(p.toString());
-//            }
-//            System.out.println("就绪队列:");
-//            for (PCB p: readyList) {
-//                System.out.println(p.toString());
-//            }
-//            System.out.println("执行队列:");
-//            for (PCB p: runList) {
-//                System.out.println(p.toString());
-//            }
-//            System.out.println("完成队列:");
-//            for (PCB p: finishList) {
-//                System.out.println(p.toString());
-//            }
-//            System.out.println("==========================================");
+            System.out.println("第"+currentTime+"秒：");
+            System.out.println("==========================================");
+            System.out.println("未到达队列：");
+            for (PCB p: unreachedList) {
+                System.out.println(p.toString());
+            }
+            System.out.println("就绪队列:");
+            for (PCB p: readyList) {
+                System.out.println(p.toString());
+            }
+            System.out.println("执行队列:");
+            for (PCB p: runList) {
+                System.out.println(p.toString());
+            }
+            System.out.println("完成队列:");
+            for (PCB p: finishList) {
+                System.out.println(p.toString());
+            }
+            System.out.println("==========================================");
 
 
             //时间前进一秒

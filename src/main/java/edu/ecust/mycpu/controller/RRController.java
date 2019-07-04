@@ -59,8 +59,8 @@ public class RRController {
         //获取当前队列JSON字符串
         String currentDataStr = String.valueOf(allData.get(String.valueOf(currentTime)));
         Map<String, List<PCB>> result = JSONObject.parseObject(currentDataStr)
-                .entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> JSONObject.parseArray(String.valueOf(entry.getValue()), PCB.class)));
+                    .entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, entry -> JSONObject.parseArray(String.valueOf(entry.getValue()), PCB.class)));
         System.out.println("Map<String, List<PCB>> "+result.toString());
         //获取时间片长度
         Integer round = Integer.parseInt(String.valueOf(allData.get("round")));
@@ -71,24 +71,14 @@ public class RRController {
         List<PCB> readyList = new LinkedList<>();
         List<PCB> runList = new LinkedList<>();
         List<PCB> finishList = new LinkedList<>();
-//        for (Object obj : allData.keySet()){
-////            currentTime = Integer.parseInt(String.valueOf(obj));
-//            currentDataStr = String.valueOf(allData.get(obj));
-////            System.out.println("key为："+currentTime+"  值为："+currentDataStr);
-//            result = JSONObject.parseObject(currentDataStr)
-//                    .entrySet().stream()
-//                    .collect(Collectors.toMap(Map.Entry::getKey, entry -> JSONObject.parseArray(String.valueOf(entry.getValue()), PCB.class)));
-//            System.out.println("Map<String, List<PCB>>"+result.toString());
-//        }
+//        List<PCB> jamList = new LinkedList<>();
         //每个队列存入数据
-        for(String name:result.keySet()){
-            allList.add(result.get(name));
-        }
-        blockupList.addAll(allList.get(0));
-        readyList.addAll(allList.get(1));
-        runList.addAll(allList.get(2));
-        finishList.addAll(allList.get(3));
-
+        blockupList.addAll(result.get("blockup"));
+        readyList.addAll(result.get("ready"));
+        runList.addAll(result.get("run"));
+        finishList.addAll(result.get("finish"));
+//        jamList.addAll(result.get("jam"));
+        //@TODO:每个LIST合法性检查
         System.out.println("从前端接收到的数据为：");
         System.out.println("第"+currentTime+"秒：");
         System.out.println("==========================================");
