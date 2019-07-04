@@ -37,11 +37,11 @@ public class RoundListService {
 
     private Random random;
 
-    private int[][] p={{2,8,0,8},{3,5,0,5},{1,10,0,10},{5,9,0,9}};
+    private int[][] p={{2,8,0,8},{3,5,0,5},{1,10,0,10},{5,9,0,9},{1,4,0,4},{8,7,0,7},{10,2,0,2},{15,3,0,3},{17,6,0,6},{13,12,0,12}};
 
     public RoundListService(Integer currentTime,List<PCB> unreachedList, List<PCB> readyList, List<PCB> runList,List<PCB> finishList, Map<Integer,Map<String,List<PCB>>> allData,Integer round) {
         this.currentTime = currentTime;
-        this.processNum = 4;
+        this.processNum = 10;
         this.unreachedList = unreachedList;
         this.readyList = readyList;
         this.runList = runList;
@@ -52,7 +52,7 @@ public class RoundListService {
 
     public RoundListService(List<PCB> unreachedList, List<PCB> readyList, List<PCB> runList,List<PCB> finishList, Map<Integer,Map<String,List<PCB>>> allData,Integer round) {
         this.currentTime = 0;
-        this.processNum = 4;
+        this.processNum = 10;
         this.unreachedList = unreachedList;
         this.readyList = readyList;
         this.runList = runList;
@@ -169,9 +169,9 @@ public class RoundListService {
             }
 
 
-            //超时就跳出循环
-            if(currentTime==100)
-                return null;
+//            //超时就跳出循环
+//            if(currentTime==300)
+//                return null;
 
             Map<String,List<PCB>> currentData = new HashMap<>();
             List<PCB> ur = new LinkedList<>();
