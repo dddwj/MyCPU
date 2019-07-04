@@ -29,7 +29,7 @@ var rose_opt = {
     legend: {
         x: 'center',
         y: 'bottom',
-        data: ['已完成', '就绪状态', '正在运行', '未到达']
+        data: ['已完成', '就绪状态', '正在运行', '未到达', '阻塞']
     },
     toolbox: {
         show: true,
@@ -66,10 +66,114 @@ var rose_opt = {
                 {value: 53, name: '就绪状态'},
                 {value: 1, name: '正在运行'},
                 {value: 5, name: '未到达'},
+                {value: 4, name: '阻塞'}
             ]
         }
     ]
 };
+
+// 阶梯瀑布图
+var waterfall_opt = {
+    title: {
+        text: '完成进程统计'
+    },
+    tooltip : {
+        trigger: 'axis',
+        axisPointer : {
+            type : 'cross',
+            crossStyle: {
+                color: '#999'
+            }
+        }
+    },
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    },
+    xAxis: {
+        type : 'category',
+        splitLine: {show:false},
+        axisLabel: {
+            interval: 0,
+        },
+        data :  function (){
+            var list = [];
+            return list;
+        }()
+    },
+    yAxis: [
+        {
+            type : 'value',
+            name: '周转时间',
+            min: 0,
+            max: 100,
+            interval: 10,
+            axisLabel: {
+                formatter: '{value}秒'
+            }
+        },
+        {
+            type: 'value',
+            name: '带权周转时间',
+            min: 2,
+            max: 12,
+            interval: 10,
+            axisLabel: {
+                formatter: '{value}秒'
+            }
+        }
+    ],
+    toolbox: {
+        feature: {
+            dataView: {show: true},
+            magicType: {show: true, type: ['line', 'bar']},
+            saveAsImage: {show: true},
+        }
+    },
+    legend: {
+        data: ['周转时间', '带权周转时间']
+    },
+    series: [
+        {
+            name: '开始时间',
+            type: 'bar',
+            stack: '总量',
+            itemStyle: {
+                normal: {
+                    barBorderColor: 'rgba(0,0,0,0)',
+                    color: 'rgba(0,0,0,0)'
+                },
+                emphasis: {
+                    barBorderColor: 'rgba(0,0,0,0)',
+                    color: 'rgba(0,0,0,0)'
+                }
+            },
+            data: []
+        },
+        {
+            name: '周转时间',
+            type: 'bar',
+            stack: '总量',
+            barWidth: '35%',
+            label: {
+                normal: {
+                    show: true,
+                    position: 'inside'
+                }
+            },
+            data: []
+        },
+        {
+            name: '带权周转时间',
+            type: 'line',
+            yAxisIndex: 1,
+            data: []
+        }
+    ]
+};
+
 
 
 var app = new Vue({
@@ -79,11 +183,20 @@ var app = new Vue({
         alg: '1',
         current_time: 0,
         round: 3,
+        limitNum: 5,
         isPreemptive: true,
         runPCBTable: [],
         readyPCBTable: [],
         blockupPCBTable: [],
         finishPCBTable: [],
+        jamPCBTable: [],
+        addPCBForm: {
+            pid: null,
+            name: null,
+            prio: null,
+            arrivalTime: null
+        },
+        needInit: false,
     },
     methods: {
         drawGauge() {
@@ -96,11 +209,17 @@ var app = new Vue({
             window.addEventListener("resize", this.roseChart.resize);
             this.roseChart.setOption(rose_opt);
         },
+        drawWaterFall() {
+            this.waterfallChart = echarts.init(document.getElementById('waterfall'));
+            window.addEventListener("resize", this.waterfallChart.resize);
+            this.waterfallChart.setOption(waterfall_opt);
+        },
         showLists(time) {
             this.showRunPCBTable(time);
             this.showReadyPCBTable(time);
             this.showBlockupPCBTable(time);
             this.showFinishPCBTable(time);
+            this.showJamPCBTable(time);
         },
         showBlockupPCBTable(time) {
             this.blockupPCBTable = [];
@@ -118,6 +237,24 @@ var app = new Vue({
                     });
                 }
                 return blockupPCBTable;
+            })();
+        },
+        showJamPCBTable(time) {
+            this.jamPCBTable = [];
+            this.jamPCBTable = ( function () {
+                let jamPCBList = PCBs[time]["jam"];
+                let jamPCBTable = [];
+                for (let i = 0; i < jamPCBList.length; i++){
+                    let PCB = jamPCBList[i];
+                    jamPCBTable.push({
+                        "pid": PCB.pid,
+                        "name": PCB.name,
+                        "prio": PCB.prio,
+                        "arrivalTime": PCB.arrivalTime,
+                        "remainNeedTime": PCB.remainNeedTime
+                    });
+                }
+                return jamPCBTable;
             })();
         },
         showRunPCBTable(time) {
@@ -185,16 +322,69 @@ var app = new Vue({
         pause() {  // 暂停连续运行
             clearInterval(this.timer);
         },
+        addPCBFormLine() {
+            this.blockupPCBTable.push(JSON.parse(JSON.stringify(this.addPCBForm)));
+            this.needInit = true;
+            app.$message({
+                message: "添加成功！"
+            });
+        },
+        deletePCBFormLine(index, row) {
+            let PCB = row;
+            if (this.runPCBTable.indexOf(PCB) >= 0 )
+                this.runPCBTable.splice(this.runPCBTable.indexOf(PCB), 1);
+            if (this.blockupPCBTable.indexOf(PCB) >= 0 )
+                this.blockupPCBTable.splice(this.blockupPCBTable.indexOf(PCB), 1);
+            if (this.readyPCBTable.indexOf(PCB) >= 0 )
+                this.readyPCBTable.splice(this.readyPCBTable.indexOf(PCB), 1);
+            if (this.jamPCBTable.indexOf(PCB) >= 0 )
+                this.jamPCBTable.splice(this.jamPCBTable.indexOf(PCB), 1);
+            this.needInit = true;
+        },
+        getSummaries(param) {
+            const {columns, data} = param;
+            const sums = [];
+            columns.forEach((column, index) => {
+                if (index === 0) {
+                    sums[index] = '平均';
+                    return;
+                }
+                if (index === 1) {
+                    sums[index] = '';
+                    return;
+                }
+
+                const values = data.map(item => Number(item[column.property]));
+                if (!values.every(value => isNaN(value))) {
+                    sums[index] = values.reduce((prev, curr) => {
+                        const value = Number(curr);
+                        if (!isNaN(value)) {
+                            return prev + curr;
+                        } else {
+                            return prev;
+                        }
+                    }, 0);
+                    sums[index] /= data.length;
+                    sums[index] = Math.round(sums[index] * 100) / 100;
+                    sums[index] += ' 秒';
+                } else {
+                    sums[index] = 'N/A';
+                }
+            });
+
+            return sums;
+        },
         initLocalDataAndList() { // 获取模拟数据
             PCBs = back_front;
             this.current_time = 0;
             this.showLists(this.current_time);
             this.visible = false;
+            this.needInit = false;
         },
         initServerDataAndList() {     // 获取服务器端生成的随机数据
             let url;
             if (this.alg == '1') {
-                url = "/RRData";
+                url = "/postpost";
             }
             if (this.alg == '2') {
                 url = "/RRData";
@@ -203,14 +393,16 @@ var app = new Vue({
                 url = "/RRData";
             }
             let data = {
-                "current_time": this.current_time,
+                "currentTime": this.current_time,
                 "round": this.round,
-                "0": {
-                    "blockup": [],
-                    "ready": [],
-                    "run": [],
-                    "finish": []
-                }
+                "limitNum": this.limitNum,
+            };
+            data[''+this.current_time] = {
+                "blockup": this.blockupPCBTable,
+                "ready": this.readyPCBTable,
+                "run": this.runPCBTable,
+                "finish": this.finishPCBTable,
+                "jam": this.jamPCBTable,
             };
             // 获取后台数据
             let app = this;
@@ -224,23 +416,28 @@ var app = new Vue({
                     PCBs = res;
                     app.current_time = 0;
                     app.showLists(app.current_time);
+                    app.needInit = false;
                     app.visible = false;
                 },
                 error: function (res) {
                     app.$message({
                         type: "warning",
-                        message: "获取失败！"
+                        message: "服务器发生错误！"
                     });
                     console.log(res);
                     app.visible = false;
                 }
             });
+        },
+        updateData() {
+            this.initServerDataAndList();
         }
     },
     mounted: function () {
         this.initLocalDataAndList();
         this.drawGauge();
         this.drawRose();
+        this.drawWaterFall();
     },
     watch: {
         current_time: {
@@ -288,6 +485,24 @@ var app = new Vue({
             handler(newVal, oldVal) {
                 // 更新rose数据
                 rose_opt.series[0].data[0].value = this.finishPCBTable.length;
+                this.roseChart.setOption(rose_opt);
+
+                // 更新waterfall数据
+                let pcb = newVal[newVal.length - 1];
+                if (newVal.length > 0 && waterfall_opt.xAxis.data.indexOf(pcb.name) === -1) {
+                    waterfall_opt.xAxis.data.push(pcb.name);
+                    waterfall_opt.series[0].data.push(pcb.arrivalTime);
+                    waterfall_opt.series[1].data.push(pcb.turnoverTime);
+                    waterfall_opt.series[2].data.push(pcb.weightedTurnoverTime);
+                    this.waterfallChart.setOption(waterfall_opt);
+                }
+            },
+            deep: true
+        },
+        jamPCBTable: {
+            handler(newVal, oldVal) {
+                // 更新rose数据
+                rose_opt.series[0].data[0].value = this.jamPCBTable.length;
                 this.roseChart.setOption(rose_opt);
             },
             deep: true
