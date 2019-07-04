@@ -6,6 +6,7 @@ import edu.ecust.mycpu.util.PCBComprator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.*;
 
 //@Service
@@ -37,6 +38,17 @@ public class RoundListService {
     private Random random;
 
     private int[][] p={{2,8,0,8},{3,5,0,5},{1,10,0,10},{5,9,0,9}};
+
+    public RoundListService(Integer currentTime,List<PCB> unreachedList, List<PCB> readyList, List<PCB> runList,List<PCB> finishList, Map<Integer,Map<String,List<PCB>>> allData,Integer round) {
+        this.currentTime = currentTime;
+        this.processNum = 4;
+        this.unreachedList = unreachedList;
+        this.readyList = readyList;
+        this.runList = runList;
+        this.finishList = finishList;
+        this.allData = allData;
+        this.round = round;
+    }
 
     public RoundListService(List<PCB> unreachedList, List<PCB> readyList, List<PCB> runList,List<PCB> finishList, Map<Integer,Map<String,List<PCB>>> allData,Integer round) {
         this.currentTime = 0;
@@ -71,7 +83,7 @@ public class RoundListService {
     }
 
     /*模拟进程运行*/
-    public Map<Integer,Map<String,List<PCB>>> run(){
+    public Map<Integer,Map<String,List<PCB>>> run() throws IOException, ClassNotFoundException {
         while (true){
             //看做模拟运行已结束
             if(unreachedList.isEmpty()&&readyList.isEmpty()&&runList.isEmpty())
@@ -83,7 +95,8 @@ public class RoundListService {
                     PCB p = itr.next();
                     if(p.getArrivalTime().equals(currentTime)){
                         p.setState(State.READY);
-                        readyList.add(p);
+                        PCB temp = p.deepClone();
+                        readyList.add(temp);
                         itr.remove();
                     }else {
                         break;
@@ -130,6 +143,9 @@ public class RoundListService {
                     //弹出runlist中进程放入finishlist;
                     runList.remove(0);
                     finishList.add(cur);
+                    //readylist第一个进入runlist
+                    if(!readyList.isEmpty())
+                        runList.add(readyList.remove(0));
                 //时间片时间走完
                 }else if(roundTime==0){
                     cur.setRound(round);
@@ -157,45 +173,61 @@ public class RoundListService {
             if(currentTime==100)
                 return null;
 
-            Map<String,List<PCB>> currentData = new HashMap<String,List<PCB>>();
+            Map<String,List<PCB>> currentData = new HashMap<>();
             List<PCB> ur = new LinkedList<>();
-            ur.addAll(unreachedList);
+            for (PCB p:
+                 unreachedList) {
+                //新队列插入存入深克隆对象
+                ur.add(p.deepClone());
+            }
             currentData.put("blockup",ur);
 
             List<PCB> re = new LinkedList<>();
-            re.addAll(readyList);
+            for (PCB p:
+                    readyList) {
+                //新队列插入存入深克隆对象
+                re.add(p.deepClone());
+            }
             currentData.put("ready",re);
 
             List<PCB> ru = new LinkedList<>();
-            ru.addAll(runList);
+            for (PCB p:
+                    runList) {
+                //新队列插入存入深克隆对象
+                ru.add(p.deepClone());
+            }
             currentData.put("run",ru);
 
             List<PCB> fi = new LinkedList<>();
-            fi.addAll(finishList);
+            for (PCB p:
+                    finishList) {
+                //新队列插入存入深克隆对象
+                fi.add(p.deepClone());
+            }
             currentData.put("finish",fi);
             allData.put(currentTime,currentData);
 //            System.out.println(allData.toString());
 
             //单元测试
-            System.out.println("第"+currentTime+"秒：");
-            System.out.println("==========================================");
-            System.out.println("未到达队列：");
-            for (PCB p: unreachedList) {
-                System.out.println(p.toString());
-            }
-            System.out.println("就绪队列:");
-            for (PCB p: readyList) {
-                System.out.println(p.toString());
-            }
-            System.out.println("执行队列:");
-            for (PCB p: runList) {
-                System.out.println(p.toString());
-            }
-            System.out.println("完成队列:");
-            for (PCB p: finishList) {
-                System.out.println(p.toString());
-            }
-            System.out.println("==========================================");
+//            System.out.println("第"+currentTime+"秒：");
+//            System.out.println("==========================================");
+//            System.out.println("未到达队列：");
+//            for (PCB p: unreachedList) {
+//                System.out.println(p.toString());
+//            }
+//            System.out.println("就绪队列:");
+//            for (PCB p: readyList) {
+//                System.out.println(p.toString());
+//            }
+//            System.out.println("执行队列:");
+//            for (PCB p: runList) {
+//                System.out.println(p.toString());
+//            }
+//            System.out.println("完成队列:");
+//            for (PCB p: finishList) {
+//                System.out.println(p.toString());
+//            }
+//            System.out.println("==========================================");
 
 
             //时间前进一秒
