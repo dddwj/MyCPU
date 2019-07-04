@@ -43,6 +43,7 @@
                         <el-radio-button label="1">先进先出</el-radio-button>
                         <el-radio-button label="2">时间片轮转</el-radio-button>
                         <el-radio-button label="3">优先级队列</el-radio-button>
+                        <el-radio-button label="4">短进程优先</el-radio-button>
                     </el-radio-group>
                     <el-switch v-if="alg == 3" v-model="isPreemptive" active-color="#ff4949" inactive-color="#13ce66"
                                active-text="抢占式" inactive-text="非抢占式"></el-switch>
@@ -60,12 +61,14 @@
                         <template slot="title" style="font-size: 20px; font-weight: bold;"><i class="el-icon-s-operation"></i>控制</template>
                         <el-menu-item-group>
                             <template slot="title">控制进程选项</template>
-                            <el-menu-item index="1-3" @click="start()"><i class="el-icon-d-arrow-right"></i>连续运行/开始</el-menu-item>
-                            <el-menu-item index="1-2" @click="current_time += 1"><i class="el-icon-arrow-right"></i>第{{current_time + 1}}秒</el-menu-item>
-                            <el-menu-item index="1-1" @click="current_time -= 1" v-if="current_time > 0"><i class="el-icon-arrow-left"></i>第{{current_time - 1}}秒</el-menu-item>
-                            <el-menu-item index="1-6" @click="pause()"><i class="el-icon-video-pause"></i>暂停</el-menu-item>
+                            <el-menu-item index="1-3" @click="start()" :disabled="needInit"><i class="el-icon-d-arrow-right"></i>连续运行/开始</el-menu-item>
+                            <el-menu-item index="1-2" @click="current_time += 1" :disabled="needInit"><i class="el-icon-arrow-right"></i>第{{current_time + 1}}秒</el-menu-item>
+                            <el-menu-item index="1-1" @click="current_time -= 1" v-if="current_time > 0" :disabled="needInit"><i class="el-icon-arrow-left"></i>第{{current_time - 1}}秒</el-menu-item>
+                            <el-menu-item index="1-6" @click="pause()" :disabled="needInit"><i class="el-icon-video-pause"></i>暂停</el-menu-item>
+                            <el-menu-item index="1-7" @click="updateData" :disabled="!needInit"><i class="el-icon-remove"></i>应用更改</el-menu-item>
                             <el-menu-item index="1-4" @click="visible = true"><i class="el-icon-circle-plus"></i>新增进程</el-menu-item>
-                            <el-menu-item index="1-5"><i class="el-icon-remove"></i>删除进程</el-menu-item>
+                            <el-menu-item index="1-5" @click="$message({type: 'warning', message: '请在表格中操作'})"><i class="el-icon-remove"></i>删除进程</el-menu-item>
+                            <el-menu-item index="1-8"><i class="el-icon-remove"></i>算法对比</el-menu-item>
                         </el-menu-item-group>
                     </el-submenu>
                     <el-submenu index="2">
@@ -143,13 +146,13 @@
                                             label="操作"
                                             width="70">
                                         <template slot-scope="scope">
-                                            <el-button icon="el-icon-delete" circle></el-button>
+                                            <el-button icon="el-icon-delete" circle @click="deletePCBFormLine(scope.$index, scope.row)"></el-button>
                                         </template>
                                     </el-table-column>
                                     <el-table-column
                                             fixed="right"
                                             label="状态"
-                                            width="80">
+                                            width="100">
                                         <template slot-scope="scope">
                                             <el-tag type="success">运行中</el-tag>
                                         </template>
@@ -172,7 +175,8 @@
                                         :data="readyPCBTable"
                                         style="width: 100%"
                                         :show-header="false"
-                                        empty-text="暂无正在等待中的进程">
+                                        empty-text="暂无正在等待中的进程"
+                                        :height="200">
                                     <el-table-column type="expand">
                                         <template slot-scope="props">
                                             <el-form label-position="left" inline class="demo-table-expand">
@@ -218,13 +222,13 @@
                                             label="操作"
                                             width="70">
                                         <template slot-scope="scope">
-                                            <el-button icon="el-icon-delete" circle></el-button>
+                                            <el-button icon="el-icon-delete" circle @click="deletePCBFormLine(scope.$index, scope.row)"></el-button>
                                         </template>
                                     </el-table-column>
                                     <el-table-column
                                             fixed="right"
                                             label="状态"
-                                            width="80">
+                                            width="100">
                                         <template slot-scope="scope">
                                             <el-tag>等待中</el-tag>
                                         </template>
@@ -242,6 +246,82 @@
                             <el-row v-else>
                                 还没有就绪的进程
                             </el-row>
+                            <el-row v-if="jamPCBTable">
+                                <el-table
+                                        :data="jamPCBTable"
+                                        style="width: 100%"
+                                        :show-header="false"
+                                        empty-text="暂无阻塞的进程"
+                                        :height="100">
+                                    <el-table-column type="expand">
+                                        <template slot-scope="props">
+                                            <el-form label-position="left" inline class="demo-table-expand">
+                                                <el-form-item label="进程">
+                                                    <span>{{ props.row.name }}</span>
+                                                </el-form-item>
+                                                <el-form-item label=" PID">
+                                                    <span>{{ props.row.pid }}</span>
+                                                </el-form-item>
+                                                <el-form-item label="优先级">
+                                                    <span>{{ props.row.prio }}</span>
+                                                </el-form-item>
+                                                <el-form-item label="到达时间">
+                                                    <span>{{ props.row.arrivalTime }}</span>
+                                                </el-form-item>
+                                                <el-form-item label="需CPU时间">
+                                                    <span>{{ props.row.remainNeedTime }}</span>
+                                                </el-form-item>
+                                            </el-form>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column
+                                            label="PID"
+                                            prop="pid" width="80">
+                                    </el-table-column>
+                                    <el-table-column
+                                            label="进程"
+                                            prop="name"
+                                            width="150">
+                                        <template slot-scope="scope">
+                                            <el-tag style="font-size: larger;" v-text="scope.row.name"></el-tag>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column
+                                            label="优先级"
+                                            prop="prio">
+                                    </el-table-column>
+                                    <el-table-column
+                                            label="到达时间"
+                                            prop="arrivalTime">
+                                    </el-table-column>
+                                    <el-table-column
+                                            label="操作"
+                                            width="70">
+                                        <template slot-scope="scope">
+                                            <el-button icon="el-icon-delete" circle @click="deletePCBFormLine(scope.$index, scope.row)"></el-button>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column
+                                            fixed="right"
+                                            label="状态"
+                                            width="100">
+                                        <template slot-scope="scope">
+                                            <el-tag type="warning">阻塞</el-tag>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column
+                                            fixed="right"
+                                            label="进度"
+                                            prop="name" width="200">
+                                        <template slot-scope="scope">
+                                            <el-progress status="warning" :text-inside="true" :stroke-width="24" :percentage="scope.row.progress"></el-progress>
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
+                            </el-row>
+                            <el-row v-else>
+                                还没有就绪的进程
+                            </el-row>
                         </el-col>
                         <el-col :span="9">
                             <div id="rose" style="height: 300px;"></div>
@@ -251,13 +331,15 @@
 
 
 
-                    <el-row :gutter="20">
-                        <el-col :span="12">
+                    <el-row :gutter="10">
+                        <el-col :span="10">
                             <h4>未到达队列</h4>
                             <el-row v-if="blockupPCBTable">
                                 <el-table
                                         :data="blockupPCBTable"
-                                        style="width: 100%">
+                                        style="width: 100%;"
+                                        :height="400"
+                                        empty-text="暂无未到达的进程">
                                     <el-table-column type="expand">
                                         <template slot-scope="props">
                                             <el-form label-position="left" inline class="demo-table-expand">
@@ -281,12 +363,12 @@
                                     </el-table-column>
                                     <el-table-column
                                             label="PID"
-                                            prop="pid" width="70">
+                                            prop="pid" width="50">
                                     </el-table-column>
                                     <el-table-column
                                             label="进程"
                                             prop="name"
-                                            width="240">
+                                            width="100">
                                         <template slot-scope="scope">
                                             <el-tag style="font-size: larger;" v-text="scope.row.name"></el-tag>
                                         </template>
@@ -297,13 +379,14 @@
                                     </el-table-column>
                                     <el-table-column
                                             label="到达时间"
-                                            prop="arrivalTime">
+                                            prop="arrivalTime" sortable
+                                            width="100">
                                     </el-table-column>
                                     <el-table-column
                                             label="操作"
-                                            width="60">
+                                    >
                                         <template slot-scope="scope">
-                                            <el-button icon="el-icon-delete" circle></el-button>
+                                            <el-button icon="el-icon-delete" circle @click="deletePCBFormLine(scope.$index, scope.row)"></el-button>
                                         </template>
                                     </el-table-column>
                                 </el-table>
@@ -312,17 +395,21 @@
                                 没有未到达的进程
                             </el-row>
                         </el-col>
-                        <el-col :span="12">
+                        <el-col :span="14">
                             <h4>完成队列</h4>
                             <el-row v-if="finishPCBTable">
                                 <el-table
                                         :data="finishPCBTable"
                                         style="width: 100%"
-                                        :fit="true">
-                                    <el-table-column
-                                            label="PID"
-                                            prop="pid" width="70">
-                                    </el-table-column>
+                                        :fit="true"
+                                        :height="400"
+                                        show-summary
+                                        :summary-method="getSummaries"
+                                        empty-text="暂无完成的进程">
+                                    <!--<el-table-column-->
+                                            <!--label="PID"-->
+                                            <!--prop="pid" width="70">-->
+                                    <!--</el-table-column>-->
                                     <el-table-column
                                             label="进程"
                                             prop="name">
@@ -336,21 +423,36 @@
                                     </el-table-column>
                                     <el-table-column
                                             label="到达时间"
-                                            prop="arrivalTime">
+                                            prop="arrivalTime"
+                                            sortable>
+                                        <template slot-scope="scope">
+                                            <div v-text="'第' + scope.row.arrivalTime + '秒'"></div>
+                                        </template>
                                     </el-table-column>
                                     <el-table-column
                                             label="结束时间"
-                                            prop="finishTime">
+                                            prop="finishTime"
+                                            sortable>
+                                        <template slot-scope="scope">
+                                            <div v-text="'第' + scope.row.finishTime + '秒'"></div>
+                                        </template>
                                     </el-table-column>
                                     <el-table-column
                                             label="周转时间"
-                                            prop="turnoverTime">
+                                            prop="turnoverTime"
+                                            sortable>
+                                        <template slot-scope="scope">
+                                            <div v-text="scope.row.turnoverTime + '秒'"></div>
+                                        </template>
                                     </el-table-column>
                                     <el-table-column
                                             label="带权周转"
-                                            prop="weightedTurnoverTime">
+                                            prop="weightedTurnoverTime"
+                                            sortable>
+                                        <template slot-scope="scope">
+                                            <div v-text="scope.row.weightedTurnoverTime + '秒'"></div>
+                                        </template>
                                     </el-table-column>
-
                                 </el-table>
                             </el-row>
                             <el-row v-else>
@@ -368,10 +470,13 @@
                     <el-divider><i class="el-icon-user"></i></el-divider>
                     <el-row>
                         <el-col :span="12">
-
-                            <div id="gauge" style="height: 250px;"></div>
+                            <div id="waterfall" style="height: 350px;"></div>
+                        </el-col>
+                        <el-col :span="12">
+                            <div id="haetmap" style="height: 350px;"></div>
                         </el-col>
                     </el-row>
+                    <div id="gauge" style="height: 250px;"></div>
 
 
 
@@ -388,21 +493,43 @@
 
     <!--添加进程弹出框-->
     <el-dialog :visible.sync="visible" title="新增进程">
+        <el-tag>自动生成</el-tag>
         <el-row style="margin-bottom: 20px;">
                 <el-radio-group v-model="alg">
                     <el-radio-button label="1">先进先出</el-radio-button>
                     <el-radio-button label="2">时间片轮转</el-radio-button>
                     <el-radio-button label="3">优先级队列</el-radio-button>
+                    <el-radio-button label="4">短进程优先</el-radio-button>
                     <el-switch v-if="alg == 3" v-model="isPreemptive" active-color="#ff4949" inactive-color="#13ce66"
                                active-text="抢占式" inactive-text="非抢占式"></el-switch>
                 </el-radio-group>
         </el-row>
         <el-row>
+            <el-tag>进程数量</el-tag>
+            <el-slider v-model="limitNum" :step="1" show-stops :min="1" :max="20" show-input></el-slider>
             <el-button @click="initServerDataAndList()"><i class="el-icon-circle-plus"></i>&nbsp; 随机生成一组</el-button>
             <el-button @click="initLocalDataAndList()"><i class="el-icon-circle-plus"></i>&nbsp; 本地数据</el-button>
         </el-row>
         <el-divider><i class="el-icon-user"></i></el-divider>
         <el-tag>自己设置</el-tag>
+        <el-form>
+            <el-form-item label="PID">
+                <el-input v-model="addPCBForm.pid" placeholder="PID"></el-input>
+            </el-form-item>
+            <el-form-item label="进程名">
+                <el-input v-model="addPCBForm.name" placeholder="进程名"></el-input>
+            </el-form-item>
+            <el-form-item label="优先级">
+                <el-input v-model="addPCBForm.prio" placeholder="优先级"></el-input>
+            </el-form-item>
+            <el-form-item label="到达时间">
+                <el-input v-model="addPCBForm.arrivalTime" placeholder="到达时间"></el-input>
+            </el-form-item>
+            <el-button @click="addPCBFormLine">
+                添加!
+            </el-button>
+        </el-form>
+
     </el-dialog>
 
 </div>
