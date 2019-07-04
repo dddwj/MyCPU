@@ -5,28 +5,26 @@ import edu.ecust.mycpu.model.State;
 import edu.ecust.mycpu.util.PCBComprator;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.PriorityQueue;
+import java.util.*;
 
 
 @Service
 public class PriorityService {
     /*进程数*/
     private Integer processNum = 20;
-    public void Priority(ArrayList<PCB> unreachedList, ArrayList<PCB> readyList, ArrayList<PCB> finishList, PCB running, Integer currentTime){
+    public Map<Integer, Map<String, List<PCB>>> Priority(ArrayList<PCB> unreachedList, ArrayList<PCB> readyList, ArrayList<PCB> finishList, PCB running, Integer currentTime){
         /*
         若发现某个进程的PCB为空，直接返回错误
         */
         for(int i = 0; i<unreachedList.size(); i++){
             if (unreachedList.get(i)==null){
-                return ;
+                return null;
             }
         }
         Collections.sort(unreachedList,new PCBComprator());
         ArrayList<PCB> runningList = new ArrayList<PCB>();
         if(running==null){
-            return;
+            return null;
         }
         runningList.add(running);
         /*
@@ -39,9 +37,10 @@ public class PriorityService {
             若发现某个进程的PCB为空，直接返回错误
              */
             if(readyList.get(i)==null)
-                return;
+                return null;
             readyQueue.add(readyList.get(i));
         }
+        Map<Integer, Map<String, List<PCB>>> result = new HashMap<>();
         while(true){
             /*
             正在运行的进程，就绪队列，未到达队列都为空时结束
@@ -92,5 +91,6 @@ public class PriorityService {
 
 
         }
+        return null;
     }
 }
