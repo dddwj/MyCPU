@@ -100,7 +100,8 @@
                                 <el-table
                                         :data="runPCBTable"
                                         style="width: 100%"
-                                        empty-text="暂无正在运行的进程">
+                                        empty-text="暂无正在运行的进程"
+                                        :fit="true">
                                     <el-table-column type="expand">
                                         <template slot-scope="props">
                                             <el-form label-position="left" inline class="demo-table-expand">
@@ -124,12 +125,12 @@
                                     </el-table-column>
                                     <el-table-column
                                             label="PID"
-                                            prop="pid" width="80">
+                                            prop="pid"
+                                            width="50">
                                     </el-table-column>
                                     <el-table-column
                                             label="进程"
-                                            prop="name"
-                                            width="150">
+                                            prop="name">
                                         <template slot-scope="scope">
                                             <el-tag style="font-size: larger;" v-text="scope.row.name" type="success"></el-tag>
                                         </template>
@@ -143,26 +144,23 @@
                                             prop="arrivalTime">
                                     </el-table-column>
                                     <el-table-column
-                                            label="操作"
-                                            width="70">
-                                        <template slot-scope="scope">
-                                            <el-button icon="el-icon-delete" circle @click="deletePCBFormLine(scope.$index, scope.row)"></el-button>
-                                        </template>
-                                    </el-table-column>
-                                    <el-table-column
-                                            fixed="right"
-                                            label="状态"
-                                            width="100">
+                                            label="状态">
                                         <template slot-scope="scope">
                                             <el-tag type="success">运行中</el-tag>
                                         </template>
                                     </el-table-column>
                                     <el-table-column
-                                            fixed="right"
                                             label="进度"
-                                            prop="name" width="200">
+                                            prop="name" width="160">
                                         <template slot-scope="scope">
                                             <el-progress status="success" :text-inside="true" :stroke-width="24" :percentage="scope.row.progress"></el-progress>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column
+                                            label="操作"
+                                            width="50">
+                                        <template slot-scope="scope">
+                                            <el-button icon="el-icon-delete" circle @click="deletePCBFormLine(scope.$index, scope.row)"></el-button>
                                         </template>
                                     </el-table-column>
                                 </el-table>
@@ -176,7 +174,8 @@
                                         style="width: 100%"
                                         :show-header="false"
                                         empty-text="暂无正在等待中的进程"
-                                        :height="200">
+                                        :height="200"
+                                        :fit="true">
                                     <el-table-column type="expand">
                                         <template slot-scope="props">
                                             <el-form label-position="left" inline class="demo-table-expand">
@@ -200,12 +199,11 @@
                                     </el-table-column>
                                     <el-table-column
                                             label="PID"
-                                            prop="pid" width="80">
+                                            prop="pid" width="50">
                                     </el-table-column>
                                     <el-table-column
                                             label="进程"
-                                            prop="name"
-                                            width="150">
+                                            prop="name">
                                         <template slot-scope="scope">
                                             <el-tag style="font-size: larger;" v-text="scope.row.name"></el-tag>
                                         </template>
@@ -219,26 +217,23 @@
                                             prop="arrivalTime">
                                     </el-table-column>
                                     <el-table-column
-                                            label="操作"
-                                            width="70">
-                                        <template slot-scope="scope">
-                                            <el-button icon="el-icon-delete" circle @click="deletePCBFormLine(scope.$index, scope.row)"></el-button>
-                                        </template>
-                                    </el-table-column>
-                                    <el-table-column
-                                            fixed="right"
-                                            label="状态"
-                                            width="100">
+                                            label="状态">
                                         <template slot-scope="scope">
                                             <el-tag>等待中</el-tag>
                                         </template>
                                     </el-table-column>
                                     <el-table-column
-                                            fixed="right"
                                             label="进度"
-                                            prop="name" width="200">
+                                            prop="name" width="160">
                                         <template slot-scope="scope">
                                             <el-progress :text-inside="true" :stroke-width="24" :percentage="scope.row.progress"></el-progress>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column
+                                            label="操作"
+                                            width="50">
+                                        <template slot-scope="scope">
+                                            <el-button icon="el-icon-delete" circle @click="deletePCBFormLine(scope.$index, scope.row)"></el-button>
                                         </template>
                                     </el-table-column>
                                 </el-table>
@@ -252,7 +247,8 @@
                                         style="width: 100%"
                                         :show-header="false"
                                         empty-text="暂无阻塞的进程"
-                                        :height="100">
+                                        :height="100"
+                                        :fit="true">
                                     <el-table-column type="expand">
                                         <template slot-scope="props">
                                             <el-form label-position="left" inline class="demo-table-expand">
@@ -276,12 +272,11 @@
                                     </el-table-column>
                                     <el-table-column
                                             label="PID"
-                                            prop="pid" width="80">
+                                            prop="pid" width="50">
                                     </el-table-column>
                                     <el-table-column
                                             label="进程"
-                                            prop="name"
-                                            width="150">
+                                            prop="name">
                                         <template slot-scope="scope">
                                             <el-tag style="font-size: larger;" v-text="scope.row.name"></el-tag>
                                         </template>
@@ -295,26 +290,23 @@
                                             prop="arrivalTime">
                                     </el-table-column>
                                     <el-table-column
-                                            label="操作"
-                                            width="70">
+                                            label="状态">
                                         <template slot-scope="scope">
-                                            <el-button icon="el-icon-delete" circle @click="deletePCBFormLine(scope.$index, scope.row)"></el-button>
+                                            <el-tag type="warning">阻塞中</el-tag>
                                         </template>
                                     </el-table-column>
                                     <el-table-column
-                                            fixed="right"
-                                            label="状态"
-                                            width="100">
-                                        <template slot-scope="scope">
-                                            <el-tag type="warning">阻塞</el-tag>
-                                        </template>
-                                    </el-table-column>
-                                    <el-table-column
-                                            fixed="right"
                                             label="进度"
-                                            prop="name" width="200">
+                                            prop="name" width="160">
                                         <template slot-scope="scope">
                                             <el-progress status="warning" :text-inside="true" :stroke-width="24" :percentage="scope.row.progress"></el-progress>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column
+                                            label="操作"
+                                            width="50">
+                                        <template slot-scope="scope">
+                                            <el-button icon="el-icon-delete" circle @click="deletePCBFormLine(scope.$index, scope.row)"></el-button>
                                         </template>
                                     </el-table-column>
                                 </el-table>
@@ -383,8 +375,7 @@
                                             width="100">
                                     </el-table-column>
                                     <el-table-column
-                                            label="操作"
-                                    >
+                                            label="操作">
                                         <template slot-scope="scope">
                                             <el-button icon="el-icon-delete" circle @click="deletePCBFormLine(scope.$index, scope.row)"></el-button>
                                         </template>
@@ -404,7 +395,7 @@
                                         :fit="true"
                                         :height="400"
                                         show-summary
-                                        :summary-method="getSummaries"
+
                                         empty-text="暂无完成的进程">
                                     <!--<el-table-column-->
                                             <!--label="PID"-->
@@ -521,6 +512,9 @@
             </el-form-item>
             <el-form-item label="优先级">
                 <el-input v-model="addPCBForm.prio" placeholder="优先级"></el-input>
+            </el-form-item>
+            <el-form-item label="到达时间">
+                <el-input v-model="addPCBForm.arrivalTime" placeholder="到达时间"></el-input>
             </el-form-item>
             <el-form-item label="到达时间">
                 <el-input v-model="addPCBForm.arrivalTime" placeholder="到达时间"></el-input>

@@ -194,7 +194,14 @@ var app = new Vue({
             pid: null,
             name: null,
             prio: null,
-            arrivalTime: null
+            arrivalTime: null,
+            round: null,
+            serviceTime: null,
+            cpuTime: null,
+            remainNeedTime: null,
+            finishTime: null,
+            turnoverTime: null,
+            weightedTurnoverTime: null
         },
         needInit: false,
     },
@@ -233,7 +240,13 @@ var app = new Vue({
                         "name": PCB.name,
                         "prio": PCB.prio,
                         "arrivalTime": PCB.arrivalTime,
-                        "remainNeedTime": PCB.remainNeedTime
+                        "remainNeedTime": PCB.remainNeedTime,
+                        "cpuTime": PCB.cpuTime,
+                        "round": PCB.round,
+                        "serviceTime": PCB.serviceTime,
+                        "finishTime": PCB.finishTime,
+                        "turnoverTime": PCB.turnoverTime,
+                        "weightedTurnoverTime": PCB.weightedTurnoverTime
                     });
                 }
                 return blockupPCBTable;
@@ -251,7 +264,13 @@ var app = new Vue({
                         "name": PCB.name,
                         "prio": PCB.prio,
                         "arrivalTime": PCB.arrivalTime,
-                        "remainNeedTime": PCB.remainNeedTime
+                        "remainNeedTime": PCB.remainNeedTime,
+                        "cpuTime": PCB.cpuTime,
+                        "round": PCB.round,
+                        "serviceTime": PCB.serviceTime,
+                        "finishTime": PCB.finishTime,
+                        "turnoverTime": PCB.turnoverTime,
+                        "weightedTurnoverTime": PCB.weightedTurnoverTime
                     });
                 }
                 return jamPCBTable;
@@ -269,7 +288,13 @@ var app = new Vue({
                         "prio": PCB.prio,
                         "arrivalTime": PCB.arrivalTime,
                         "progress": Math.round(PCB.cpuTime / PCB.serviceTime * 100),
-                        "remainNeedTime": PCB.remainNeedTime
+                        "remainNeedTime": PCB.remainNeedTime,
+                        "cpuTime": PCB.cpuTime,
+                        "round": PCB.round,
+                        "serviceTime": PCB.serviceTime,
+                        "finishTime": PCB.finishTime,
+                        "turnoverTime": PCB.turnoverTime,
+                        "weightedTurnoverTime": PCB.weightedTurnoverTime
                     });
                 }
                 return runPCBTable;
@@ -288,7 +313,13 @@ var app = new Vue({
                         "prio": PCB.prio,
                         "arrivalTime": PCB.arrivalTime,
                         "progress": Math.round(PCB.cpuTime / PCB.serviceTime * 100),
-                        "remainNeedTime": PCB.remainNeedTime
+                        "remainNeedTime": PCB.remainNeedTime,
+                        "cpuTime": PCB.cpuTime,
+                        "round": PCB.round,
+                        "serviceTime": PCB.serviceTime,
+                        "finishTime": PCB.finishTime,
+                        "turnoverTime": PCB.turnoverTime,
+                        "weightedTurnoverTime": PCB.weightedTurnoverTime
                     });
                 }
                 return readyPCBTable;
@@ -306,9 +337,14 @@ var app = new Vue({
                         "name": PCB.name,
                         "prio": PCB.prio,
                         "arrivalTime": PCB.arrivalTime,
+                        "progress": 100,
+                        "remainNeedTime": PCB.remainNeedTime,
+                        "cpuTime": PCB.cpuTime,
+                        "round": PCB.round,
+                        "serviceTime": PCB.serviceTime,
                         "finishTime": PCB.finishTime,
-                        "turnoverTime": PCB.turnoverTime,  // 周转时间
-                        "weightedTurnoverTime": PCB.weightedTurnoverTime,  // 带权周转时间
+                        "turnoverTime": PCB.turnoverTime,
+                        "weightedTurnoverTime": PCB.weightedTurnoverTime
                     });
                 }
                 return finishPCBTable;
@@ -404,6 +440,14 @@ var app = new Vue({
                 "finish": this.finishPCBTable,
                 "jam": this.jamPCBTable,
             };
+            if(this.current_time == 0)
+                data['0'] = {
+                    "blockup": [],
+                    "ready": [],
+                    "run": [],
+                    "finish": [],
+                    "jam": []
+                };
             // 获取后台数据
             let app = this;
             $.ajax({
@@ -507,5 +551,10 @@ var app = new Vue({
             },
             deep: true
         },
+        round: {
+            handler() {
+                this.needInit = true;
+            }
+        }
     }
 });
