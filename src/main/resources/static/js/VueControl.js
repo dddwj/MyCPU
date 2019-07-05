@@ -359,6 +359,9 @@ var app = new Vue({
             clearInterval(this.timer);
         },
         addPCBFormLine() {
+            this.addPCBForm.round = this.round;
+            this.addPCBForm.cpuTime = 0;
+            this.addPCBForm.remainNeedTime = this.addPCBForm.serviceTime;
             this.blockupPCBTable.push(JSON.parse(JSON.stringify(this.addPCBForm)));
             this.needInit = true;
             app.$message({
@@ -376,6 +379,13 @@ var app = new Vue({
             if (this.jamPCBTable.indexOf(PCB) >= 0 )
                 this.jamPCBTable.splice(this.jamPCBTable.indexOf(PCB), 1);
             this.needInit = true;
+        },
+        removeData() {
+            this.runPCBTable = [];
+            this.blockupPCBTable = [];
+            this.readyPCBTable = [];
+            this.jamPCBTable = [];
+            this.finishPCBTable = [];
         },
         getSummaries(param) {
             const {columns, data} = param;
@@ -426,7 +436,7 @@ var app = new Vue({
                 url = "/RRData";
             }
             if (this.alg == '3') {
-                url = "/RRData";
+                url = "/FCFSData";
             }
             let data = {
                 "currentTime": this.current_time,
@@ -496,7 +506,8 @@ var app = new Vue({
                 this.roseChart.setOption(rose_opt);
 
                 // 当所有进程都结束时，停止连续运行
-                if (this.readyPCBTable.length === 0 && this.blockupPCBTable.length === 0 && newVal.length === 0){
+                if (this.readyPCBTable.length === 0 && this.blockupPCBTable.length === 0 && newVal.length === 0
+                && this.jamPCBTable.length === 0){
                     this.pause();
                     this.$message({
                         type: "success",
@@ -540,13 +551,16 @@ var app = new Vue({
                     waterfall_opt.series[2].data.push(pcb.weightedTurnoverTime);
                     this.waterfallChart.setOption(waterfall_opt);
                 }
+
+                // 更新表格最后一行平均时间计算的汇总数据
+                this.$refs.finishPCBTableSummary.doLayout();
             },
             deep: true
         },
         jamPCBTable: {
             handler(newVal, oldVal) {
                 // 更新rose数据
-                rose_opt.series[0].data[0].value = this.jamPCBTable.length;
+                rose_opt.series[0].data[4].value = this.jamPCBTable.length;
                 this.roseChart.setOption(rose_opt);
             },
             deep: true

@@ -69,6 +69,7 @@
                             <el-menu-item index="1-4" @click="visible = true"><i class="el-icon-circle-plus"></i>新增进程</el-menu-item>
                             <el-menu-item index="1-5" @click="$message({type: 'warning', message: '请在表格中操作'})"><i class="el-icon-remove"></i>删除进程</el-menu-item>
                             <el-menu-item index="1-8"><i class="el-icon-remove"></i>算法对比</el-menu-item>
+                            <el-menu-item index="1-9" @click="removeData"><i class="el-icon-remove"></i>清除数据</el-menu-item>
                         </el-menu-item-group>
                     </el-submenu>
                     <el-submenu index="2">
@@ -394,9 +395,10 @@
                                         style="width: 100%"
                                         :fit="true"
                                         :height="400"
+                                        empty-text="暂无完成的进程"
+                                        :summary-method="getSummaries"
                                         show-summary
-
-                                        empty-text="暂无完成的进程">
+                                        ref="finishPCBTableSummary">
                                     <!--<el-table-column-->
                                             <!--label="PID"-->
                                             <!--prop="pid" width="70">-->
@@ -516,8 +518,8 @@
             <el-form-item label="到达时间">
                 <el-input v-model="addPCBForm.arrivalTime" placeholder="到达时间"></el-input>
             </el-form-item>
-            <el-form-item label="到达时间">
-                <el-input v-model="addPCBForm.arrivalTime" placeholder="到达时间"></el-input>
+            <el-form-item label="服务时间">
+                <el-input v-model="addPCBForm.serviceTime" placeholder="服务时间"></el-input>
             </el-form-item>
             <el-button @click="addPCBFormLine">
                 添加!
