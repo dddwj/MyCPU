@@ -359,6 +359,9 @@ var app = new Vue({
             clearInterval(this.timer);
         },
         addPCBFormLine() {
+            this.addPCBForm.round = this.round;
+            this.addPCBForm.cpuTime = 0;
+            this.addPCBForm.remainNeedTime = this.addPCBForm.serviceTime;
             this.blockupPCBTable.push(JSON.parse(JSON.stringify(this.addPCBForm)));
             this.needInit = true;
             app.$message({

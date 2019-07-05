@@ -42,9 +42,8 @@ public class RoundListService {
 
     private int[][] p={{2,8,0,8},{3,5,0,5},{1,10,0,10},{5,9,0,9},{1,4,0,4},{8,7,0,7},{10,2,0,2},{15,3,0,3},{17,6,0,6},{13,12,0,12}};
 
-    public RoundListService(Integer currentTime,List<PCB> unreachedList, List<PCB> readyList, List<PCB> runList,List<PCB> finishList,List<PCB> jamList,Map<Integer,Map<String,List<PCB>>> allData,Integer round,Integer processNum) {
+    public RoundListService(Integer currentTime,List<PCB> unreachedList, List<PCB> readyList, List<PCB> runList,List<PCB> finishList,List<PCB> jamList,Map<Integer,Map<String,List<PCB>>> allData,Integer round) {
         this.currentTime = currentTime;
-        this.processNum = processNum;
         this.unreachedList = unreachedList;
         this.readyList = readyList;
         this.runList = runList;
@@ -89,7 +88,7 @@ public class RoundListService {
                 pcb.setName("进程"+(i+1));
                 pcb.setPrio(0);
                 pcb.setRound(round);
-                pcb.setArrivalTime(random.nextInt(20));
+                pcb.setArrivalTime(Math.abs(random.nextInt() % 20) + 1);
                 pcb.setServiceTime(Math.abs(random.nextInt() % 20) + 1);
                 pcb.setCpuTime(0);
                 pcb.setRemainNeedTime(pcb.getServiceTime());
@@ -202,14 +201,17 @@ public class RoundListService {
                         jamList.add(cur);
                         runList.remove(0);
                         //readylist第一个进入runlist
-                        if(!readyList.isEmpty())
+                        if(!readyList.isEmpty()){
                             runList.add(readyList.remove(0));
-                        cur = runList.get(0);
-                        cpuTime = cur.getCpuTime();
-                        remainNeedTime = cur.getRemainNeedTime();
-                        roundTime = cur.getRound();
+                            cur = runList.get(0);
+                            cpuTime = cur.getCpuTime();
+                            remainNeedTime = cur.getRemainNeedTime();
+                            roundTime = cur.getRound();
+                        }
+
                     }
-                    //再执行runList中进程的操作
+                    if(!runList.isEmpty()) {
+                        //再执行runList中进程的操作
                         cpuTime++;
                         remainNeedTime--;
                         roundTime--;
@@ -217,12 +219,11 @@ public class RoundListService {
                         cur.setRemainNeedTime(remainNeedTime);
                         cur.setRound(roundTime);
                         //更新runlist状态
-                        runList.set(0,cur);
-
+                        runList.set(0, cur);
+                    }
 
                 }
             }
-
 
             Map<String,List<PCB>> currentData = new HashMap<>();
             List<PCB> ur = new LinkedList<>();
