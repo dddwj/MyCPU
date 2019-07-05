@@ -105,7 +105,7 @@ public class RRController {
         RoundListService rs;
         if(currentTime==0){
             rs = new RoundListService(blockupList,readyList,runList,finishList,modifiedallData,round);
-            rs.init();
+            rs.init("random");
             rs.sortUnreachedList();
         }else {
             rs = new RoundListService(currentTime+1,blockupList,readyList,runList,finishList,modifiedallData,round);

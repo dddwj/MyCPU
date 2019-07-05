@@ -17,7 +17,9 @@ public class RoundListService {
     /*当前时间*/
     private Integer currentTime;
 
-    /*进程数*/
+    /*
+    @TODO：进程数（未来加入构造函数）
+    */
     private Integer processNum;
 
     /*未到达进程队列*/
@@ -44,7 +46,7 @@ public class RoundListService {
 
     public RoundListService(Integer currentTime,List<PCB> unreachedList, List<PCB> readyList, List<PCB> runList,List<PCB> finishList,Map<Integer,Map<String,List<PCB>>> allData,Integer round) {
         this.currentTime = currentTime;
-        this.processNum = 10;
+        this.processNum = 15;
         this.unreachedList = unreachedList;
         this.readyList = readyList;
         this.runList = runList;
@@ -55,7 +57,7 @@ public class RoundListService {
 
     public RoundListService(List<PCB> unreachedList, List<PCB> readyList, List<PCB> runList,List<PCB> finishList, Map<Integer,Map<String,List<PCB>>> allData,Integer round) {
         this.currentTime = 0;
-        this.processNum = 10;
+        this.processNum = 15;
         this.unreachedList = unreachedList;
         this.readyList = readyList;
         this.runList = runList;
@@ -64,20 +66,38 @@ public class RoundListService {
         this.round = round;
     }
 
-    public void init(){
-        for(int i=0;i<processNum;i++){
-            PCB pcb = new PCB();
-            pcb.setPID(i+1);
-            pcb.setName("进程"+(i+1));
-            pcb.setPrio(0);
-            pcb.setRound(round);
-            pcb.setArrivalTime(p[i][0]);
-            pcb.setServiceTime(p[i][1]);
-            pcb.setCpuTime(p[i][2]);
-            pcb.setRemainNeedTime(p[i][3]);
-            pcb.setState(State.BLOCK_UP);
-            unreachedList.add(pcb);
+    public void init(String type){
+        if("default".equals(type)){
+            for(int i=0;i<processNum;i++){
+                PCB pcb = new PCB();
+                pcb.setPID(i+1);
+                pcb.setName("进程"+(i+1));
+                pcb.setPrio(0);
+                pcb.setRound(round);
+                pcb.setArrivalTime(p[i][0]);
+                pcb.setServiceTime(p[i][1]);
+                pcb.setCpuTime(p[i][2]);
+                pcb.setRemainNeedTime(p[i][3]);
+                pcb.setState(State.BLOCK_UP);
+                unreachedList.add(pcb);
+            }
+        }else{//随机生成
+            Random random = new Random();
+            for(int i=0;i<processNum;i++){
+                PCB pcb = new PCB();
+                pcb.setPID(i+1);
+                pcb.setName("进程"+(i+1));
+                pcb.setPrio(0);
+                pcb.setRound(round);
+                pcb.setArrivalTime(random.nextInt(20));
+                pcb.setServiceTime(Math.abs(random.nextInt() % 20) + 1);
+                pcb.setCpuTime(0);
+                pcb.setRemainNeedTime(pcb.getServiceTime());
+                pcb.setState(State.BLOCK_UP);
+                unreachedList.add(pcb);
+            }
         }
+
     }
 
     /*给未到达进程按到达时间升序排序*/
