@@ -40,30 +40,30 @@ public class RoundListService {
     /*时间片长度*/
     private Integer round;
 
-    private Random random;
-
     private int[][] p={{2,8,0,8},{3,5,0,5},{1,10,0,10},{5,9,0,9},{1,4,0,4},{8,7,0,7},{10,2,0,2},{15,3,0,3},{17,6,0,6},{13,12,0,12}};
 
-    public RoundListService(Integer currentTime,List<PCB> unreachedList, List<PCB> readyList, List<PCB> runList,List<PCB> finishList,Map<Integer,Map<String,List<PCB>>> allData,Integer round) {
+    public RoundListService(Integer currentTime,List<PCB> unreachedList, List<PCB> readyList, List<PCB> runList,List<PCB> finishList,List<PCB> jamList,Map<Integer,Map<String,List<PCB>>> allData,Integer round,Integer processNum) {
         this.currentTime = currentTime;
-        this.processNum = 15;
+        this.processNum = processNum;
         this.unreachedList = unreachedList;
         this.readyList = readyList;
         this.runList = runList;
         this.finishList = finishList;
         this.allData = allData;
         this.round = round;
+        this.jamList=jamList;
     }
 
-    public RoundListService(List<PCB> unreachedList, List<PCB> readyList, List<PCB> runList,List<PCB> finishList, Map<Integer,Map<String,List<PCB>>> allData,Integer round) {
+    public RoundListService(List<PCB> unreachedList, List<PCB> readyList, List<PCB> runList,List<PCB> finishList, List<PCB> jamList,Map<Integer,Map<String,List<PCB>>> allData,Integer round,Integer processNum) {
         this.currentTime = 0;
-        this.processNum = 15;
+        this.processNum = processNum;
         this.unreachedList = unreachedList;
         this.readyList = readyList;
         this.runList = runList;
         this.finishList = finishList;
         this.allData = allData;
         this.round = round;
+        this.jamList=jamList;
     }
 
     public void init(String type){
@@ -127,6 +127,20 @@ public class RoundListService {
                 }
             }
 
+            //如果阻塞队列不空随机将阻塞进程解除阻塞状态并放入就绪队列
+            if(!jamList.isEmpty()){
+                Iterator<PCB> iterator = jamList.iterator();
+                while(iterator.hasNext()){
+                    PCB p = iterator.next();
+                    Random r = new Random();
+                    if(r.nextInt(100)<33){
+                        p.setState(State.READY);
+                        readyList.add(p);
+                        iterator.remove();
+                    }
+                }
+            }
+
             //判断当前run是否为空
             if(runList.isEmpty()){
                 //如果空取就绪队列的第一个进程放入run队列
@@ -166,9 +180,6 @@ public class RoundListService {
                     //弹出runlist中进程放入finishlist;
                     runList.remove(0);
                     finishList.add(cur);
-
-                    //进行阻塞判定
-
                     //readylist第一个进入runlist
                     if(!readyList.isEmpty())
                         runList.add(readyList.remove(0));
@@ -179,23 +190,36 @@ public class RoundListService {
                     //弹出runlist中进程放入readylist末尾
                     runList.remove(0);
                     readyList.add(cur);
-
-                    //进行阻塞判定
-
                     //readylist第一个进入runlist
                     runList.add(readyList.remove(0));
-                //时间片和剩余CPU时间均大于0，执行一秒操作
                 }
-                //是否阻塞
+                //时间片和剩余CPU时间均大于0，此时可能发生阻塞,先判定阻塞，再执行操作
                 else {
-                    cpuTime++;
-                    remainNeedTime--;
-                    roundTime--;
-                    cur.setCpuTime(cpuTime);
-                    cur.setRemainNeedTime(remainNeedTime);
-                    cur.setRound(roundTime);
-                    //更新runlist状态
-                    runList.set(0,cur);
+                    Random r = new Random();
+                    // 先进行阻塞随机判定，如果0-99中小于10发生阻塞，并从就绪队列头部拿出新的进程放入run
+                    if(r.nextInt(100)<10){
+                        cur.setState(State.JAM);
+                        jamList.add(cur);
+                        runList.remove(0);
+                        //readylist第一个进入runlist
+                        if(!readyList.isEmpty())
+                            runList.add(readyList.remove(0));
+                        cur = runList.get(0);
+                        cpuTime = cur.getCpuTime();
+                        remainNeedTime = cur.getRemainNeedTime();
+                        roundTime = cur.getRound();
+                    }
+                    //再执行runList中进程的操作
+                        cpuTime++;
+                        remainNeedTime--;
+                        roundTime--;
+                        cur.setCpuTime(cpuTime);
+                        cur.setRemainNeedTime(remainNeedTime);
+                        cur.setRound(roundTime);
+                        //更新runlist状态
+                        runList.set(0,cur);
+
+
                 }
             }
 
@@ -232,6 +256,14 @@ public class RoundListService {
                 fi.add(p.deepClone());
             }
             currentData.put("finish",fi);
+
+            List<PCB> ja = new LinkedList<>();
+            for (PCB p:
+                    jamList) {
+                //新队列插入存入深克隆对象
+                ja.add(p.deepClone());
+            }
+            currentData.put("jam",ja);
             allData.put(currentTime,currentData);
 //            System.out.println(allData.toString());
 
@@ -252,6 +284,10 @@ public class RoundListService {
             }
             System.out.println("完成队列:");
             for (PCB p: finishList) {
+                System.out.println(p.toString());
+            }
+            System.out.println("阻塞队列:");
+            for (PCB p: jamList) {
                 System.out.println(p.toString());
             }
             System.out.println("==========================================");

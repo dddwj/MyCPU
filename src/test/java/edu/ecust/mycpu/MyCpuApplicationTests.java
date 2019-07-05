@@ -243,24 +243,24 @@ public class MyCpuApplicationTests {
 
         System.out.println("再次执行run方法");
         Map<Integer, Map<String, List<PCB>>> modifiedallData = new HashMap<>();
-        RoundListService rs = new RoundListService(currentTime + 1, blockupList, readyList, runList, finishList, modifiedallData, 2);
-        try {
-            Map<Integer, Map<String, List<PCB>>> res = rs.run();
-            for (Object key : res.keySet()) {
-                System.out.println("==========================================");
-                System.out.println("当前时间为第" + key + "秒");
-                Map<String, List<PCB>> map = res.get(key);
-                for (Object name : map.keySet()) {
-                    System.out.println("列表名：" + name);
-                    System.out.println("PCB数据：" + map.get(name));
-                }
-                System.out.println("==========================================");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+//        RoundListService rs = new RoundListService(currentTime + 1, blockupList, readyList, runList, finishList, modifiedallData, 2,10);
+//        try {
+//            Map<Integer, Map<String, List<PCB>>> res = rs.run();
+//            for (Object key : res.keySet()) {
+//                System.out.println("==========================================");
+//                System.out.println("当前时间为第" + key + "秒");
+//                Map<String, List<PCB>> map = res.get(key);
+//                for (Object name : map.keySet()) {
+//                    System.out.println("列表名：" + name);
+//                    System.out.println("PCB数据：" + map.get(name));
+//                }
+//                System.out.println("==========================================");
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (ClassNotFoundException e) {
+//            e.printStackTrace();
+//        }
     }
 
 }
