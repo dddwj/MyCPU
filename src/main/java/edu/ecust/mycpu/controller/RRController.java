@@ -54,6 +54,7 @@ public class RRController {
         //将第一层Map转化出来
         Map allData = JSON.parseObject(currentDataMap,Map.class);
         //获取当前时间
+        System.out.println(String.valueOf(allData.get("current_time")));
         Integer currentTime = Integer.parseInt(String.valueOf(allData.get("currentTime")));
         System.out.println("当前时间为："+currentTime);
         //获取当前队列JSON字符串
