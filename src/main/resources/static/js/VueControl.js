@@ -194,7 +194,14 @@ var app = new Vue({
             pid: null,
             name: null,
             prio: null,
-            arrivalTime: null
+            arrivalTime: null,
+            round: null,
+            serviceTime: null,
+            cpuTime: null,
+            remainNeedTime: null,
+            finishTime: null,
+            turnoverTime: null,
+            weightedTurnoverTime: null
         },
         needInit: false,
     },
@@ -233,7 +240,13 @@ var app = new Vue({
                         "name": PCB.name,
                         "prio": PCB.prio,
                         "arrivalTime": PCB.arrivalTime,
-                        "remainNeedTime": PCB.remainNeedTime
+                        "remainNeedTime": PCB.remainNeedTime,
+                        "cpuTime": PCB.cpuTime,
+                        "round": PCB.round,
+                        "serviceTime": PCB.serviceTime,
+                        "finishTime": PCB.finishTime,
+                        "turnoverTime": PCB.turnoverTime,
+                        "weightedTurnoverTime": PCB.weightedTurnoverTime
                     });
                 }
                 return blockupPCBTable;
@@ -251,7 +264,13 @@ var app = new Vue({
                         "name": PCB.name,
                         "prio": PCB.prio,
                         "arrivalTime": PCB.arrivalTime,
-                        "remainNeedTime": PCB.remainNeedTime
+                        "remainNeedTime": PCB.remainNeedTime,
+                        "cpuTime": PCB.cpuTime,
+                        "round": PCB.round,
+                        "serviceTime": PCB.serviceTime,
+                        "finishTime": PCB.finishTime,
+                        "turnoverTime": PCB.turnoverTime,
+                        "weightedTurnoverTime": PCB.weightedTurnoverTime
                     });
                 }
                 return jamPCBTable;
@@ -269,7 +288,13 @@ var app = new Vue({
                         "prio": PCB.prio,
                         "arrivalTime": PCB.arrivalTime,
                         "progress": Math.round(PCB.cpuTime / PCB.serviceTime * 100),
-                        "remainNeedTime": PCB.remainNeedTime
+                        "remainNeedTime": PCB.remainNeedTime,
+                        "cpuTime": PCB.cpuTime,
+                        "round": PCB.round,
+                        "serviceTime": PCB.serviceTime,
+                        "finishTime": PCB.finishTime,
+                        "turnoverTime": PCB.turnoverTime,
+                        "weightedTurnoverTime": PCB.weightedTurnoverTime
                     });
                 }
                 return runPCBTable;
@@ -288,7 +313,13 @@ var app = new Vue({
                         "prio": PCB.prio,
                         "arrivalTime": PCB.arrivalTime,
                         "progress": Math.round(PCB.cpuTime / PCB.serviceTime * 100),
-                        "remainNeedTime": PCB.remainNeedTime
+                        "remainNeedTime": PCB.remainNeedTime,
+                        "cpuTime": PCB.cpuTime,
+                        "round": PCB.round,
+                        "serviceTime": PCB.serviceTime,
+                        "finishTime": PCB.finishTime,
+                        "turnoverTime": PCB.turnoverTime,
+                        "weightedTurnoverTime": PCB.weightedTurnoverTime
                     });
                 }
                 return readyPCBTable;
@@ -306,9 +337,14 @@ var app = new Vue({
                         "name": PCB.name,
                         "prio": PCB.prio,
                         "arrivalTime": PCB.arrivalTime,
+                        "progress": 100,
+                        "remainNeedTime": PCB.remainNeedTime,
+                        "cpuTime": PCB.cpuTime,
+                        "round": PCB.round,
+                        "serviceTime": PCB.serviceTime,
                         "finishTime": PCB.finishTime,
-                        "turnoverTime": PCB.turnoverTime,  // 周转时间
-                        "weightedTurnoverTime": PCB.weightedTurnoverTime,  // 带权周转时间
+                        "turnoverTime": PCB.turnoverTime,
+                        "weightedTurnoverTime": PCB.weightedTurnoverTime
                     });
                 }
                 return finishPCBTable;
@@ -323,6 +359,9 @@ var app = new Vue({
             clearInterval(this.timer);
         },
         addPCBFormLine() {
+            this.addPCBForm.round = this.round;
+            this.addPCBForm.cpuTime = 0;
+            this.addPCBForm.remainNeedTime = this.addPCBForm.serviceTime;
             this.blockupPCBTable.push(JSON.parse(JSON.stringify(this.addPCBForm)));
             this.needInit = true;
             app.$message({
@@ -340,6 +379,13 @@ var app = new Vue({
             if (this.jamPCBTable.indexOf(PCB) >= 0 )
                 this.jamPCBTable.splice(this.jamPCBTable.indexOf(PCB), 1);
             this.needInit = true;
+        },
+        removeData() {
+            this.runPCBTable = [];
+            this.blockupPCBTable = [];
+            this.readyPCBTable = [];
+            this.jamPCBTable = [];
+            this.finishPCBTable = [];
         },
         getSummaries(param) {
             const {columns, data} = param;
@@ -390,7 +436,7 @@ var app = new Vue({
                 url = "/RRData";
             }
             if (this.alg == '3') {
-                url = "/RRData";
+                url = "/FCFSData";
             }
             let data = {
                 "currentTime": this.current_time,
@@ -404,6 +450,14 @@ var app = new Vue({
                 "finish": this.finishPCBTable,
                 "jam": this.jamPCBTable,
             };
+            if(this.current_time == 0)
+                data['0'] = {
+                    "blockup": [],
+                    "ready": [],
+                    "run": [],
+                    "finish": [],
+                    "jam": []
+                };
             // 获取后台数据
             let app = this;
             $.ajax({
@@ -452,7 +506,8 @@ var app = new Vue({
                 this.roseChart.setOption(rose_opt);
 
                 // 当所有进程都结束时，停止连续运行
-                if (this.readyPCBTable.length === 0 && this.blockupPCBTable.length === 0 && newVal.length === 0){
+                if (this.readyPCBTable.length === 0 && this.blockupPCBTable.length === 0 && newVal.length === 0
+                && this.jamPCBTable.length === 0){
                     this.pause();
                     this.$message({
                         type: "success",
@@ -496,16 +551,24 @@ var app = new Vue({
                     waterfall_opt.series[2].data.push(pcb.weightedTurnoverTime);
                     this.waterfallChart.setOption(waterfall_opt);
                 }
+
+                // 更新表格最后一行平均时间计算的汇总数据
+                this.$refs.finishPCBTableSummary.doLayout();
             },
             deep: true
         },
         jamPCBTable: {
             handler(newVal, oldVal) {
                 // 更新rose数据
-                rose_opt.series[0].data[0].value = this.jamPCBTable.length;
+                rose_opt.series[0].data[4].value = this.jamPCBTable.length;
                 this.roseChart.setOption(rose_opt);
             },
             deep: true
         },
+        round: {
+            handler() {
+                this.needInit = true;
+            }
+        }
     }
 });

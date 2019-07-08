@@ -33,3 +33,5 @@ build/
 .mvn
 
 .DS_Store
+
+src/main/resources/static/js/localjson.js

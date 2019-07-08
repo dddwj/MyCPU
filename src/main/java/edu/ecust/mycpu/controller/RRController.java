@@ -54,7 +54,7 @@ public class RRController {
         //将第一层Map转化出来
         Map allData = JSON.parseObject(currentDataMap,Map.class);
         //获取当前时间
-        Integer currentTime = Integer.parseInt(String.valueOf(allData.get("current_time")));
+        Integer currentTime = Integer.parseInt(String.valueOf(allData.get("currentTime")));
         System.out.println("当前时间为："+currentTime);
         //获取当前队列JSON字符串
         String currentDataStr = String.valueOf(allData.get(String.valueOf(currentTime)));
@@ -65,19 +65,22 @@ public class RRController {
         //获取时间片长度
         Integer round = Integer.parseInt(String.valueOf(allData.get("round")));
         System.out.println("时间片长度："+round);
+        //获取进程个数
+        Integer processNum = Integer.parseInt(String.valueOf(allData.get("limitNum")));
+        System.out.println("时间片长度："+processNum);
         //创建相应队列
         List<List<PCB>> allList = new ArrayList<>();
         List<PCB> blockupList = new LinkedList<>();
         List<PCB> readyList = new LinkedList<>();
         List<PCB> runList = new LinkedList<>();
         List<PCB> finishList = new LinkedList<>();
-//        List<PCB> jamList = new LinkedList<>();
+        List<PCB> jamList = new LinkedList<>();
         //每个队列存入数据
         blockupList.addAll(result.get("blockup"));
         readyList.addAll(result.get("ready"));
         runList.addAll(result.get("run"));
         finishList.addAll(result.get("finish"));
-//        jamList.addAll(result.get("jam"));
+        jamList.addAll(result.get("jam"));
         //@TODO:每个LIST合法性检查
         System.out.println("从前端接收到的数据为：");
         System.out.println("第"+currentTime+"秒：");
@@ -104,11 +107,11 @@ public class RRController {
         Map<Integer,Map<String,List<PCB>>> modifiedallData = new HashMap<>();
         RoundListService rs;
         if(currentTime==0){
-            rs = new RoundListService(blockupList,readyList,runList,finishList,modifiedallData,round);
-            rs.init();
+            rs = new RoundListService(blockupList,readyList,runList,finishList,jamList,modifiedallData,round,processNum);
+            rs.init("random");
             rs.sortUnreachedList();
         }else {
-            rs = new RoundListService(currentTime+1,blockupList,readyList,runList,finishList,modifiedallData,round);
+            rs = new RoundListService(currentTime+1,blockupList,readyList,runList,finishList,jamList,modifiedallData,round);
 
         }
         try {
