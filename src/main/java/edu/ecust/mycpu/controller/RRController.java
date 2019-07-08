@@ -112,7 +112,7 @@ public class RRController {
             rs.sortUnreachedList();
         }else {
             rs = new RoundListService(currentTime+1,blockupList,readyList,runList,finishList,jamList,modifiedallData,round);
-
+            rs.sortUnreachedList();
         }
         try {
             Map<Integer, Map<String, List<PCB>>> res = rs.run();
