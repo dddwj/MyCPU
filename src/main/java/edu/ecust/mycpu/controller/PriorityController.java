@@ -54,10 +54,12 @@ public class PriorityController {
             unreachedList.addAll(result.get("finish"));
             ArrayList<PCB> runningList = new ArrayList<>();
             unreachedList.addAll(result.get("run"));
+            ArrayList<PCB> jamList = new ArrayList<>();
+            unreachedList.addAll(result.get("jam"));
             if(unreachedList.isEmpty()){
                 unreachedList = RandomProcess.getRandomUnreachedProcess(10);
             }
-            return priorityService.Priority(unreachedList,readyList,finishList,runningList,currentTime);
+            return priorityService.Priority(unreachedList,readyList,finishList,runningList,jamList,currentTime);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {

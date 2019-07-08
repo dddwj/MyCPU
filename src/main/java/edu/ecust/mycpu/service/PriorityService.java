@@ -14,7 +14,7 @@ import java.util.*;
 @Service
 public class PriorityService {
 
-    public Map<Integer, Map<String, List<PCB>>> Priority(ArrayList<PCB> unreachedList, ArrayList<PCB> readyList, ArrayList<PCB> finishList, ArrayList<PCB> runningList, Integer currentTime) throws IOException, ClassNotFoundException {
+    public Map<Integer, Map<String, List<PCB>>> Priority(ArrayList<PCB> unreachedList, ArrayList<PCB> readyList, ArrayList<PCB> finishList, ArrayList<PCB> runningList, ArrayList<PCB> jamList, Integer currentTime) throws IOException, ClassNotFoundException {
         Integer processNum = 20;
         /*
         若发现某个进程的PCB为空，直接返回错误
@@ -89,14 +89,14 @@ public class PriorityService {
             若运行队列不为空，随机判断是否对运行中的进程进行阻塞。
             若阻塞，把它的状态修改为阻塞，将它从运行队列中转移到阻塞队列，使运行队列为空。
              */
-            /*if(!runningList.isEmpty()){
+            if(!runningList.isEmpty()){
                 if(Math.random()*100+1<5){
                     PCB runningProcess = runningList.get(0);
                     runningList.remove(0);
                     runningProcess.setState(State.BLOCK_UP);
                     jamList.add(runningProcess);
                 }
-            }*/
+            }
 
             /*
             运行队列为空时，若就绪队列不为空，那么取出就绪队列首的进程，放入运行队列中,否则等待，不执行任何操作。
@@ -126,6 +126,7 @@ public class PriorityService {
             currentData.put("ready",new ArrayList<>());
             currentData.put("run",new ArrayList<>());
             currentData.put("finish",new ArrayList<>());
+            currentData.put("jam",new ArrayList<>());
             for(int i=0;i<unreachedList.size();i++){
                 currentData.get("blockup").add(unreachedList.get(i).deepClone());
             }
@@ -139,10 +140,15 @@ public class PriorityService {
             for(int i=0;i<finishList.size();i++){
                 currentData.get("finish").add(finishList.get(i).deepClone());
             }
+            for(int i=0;i<jamList.size();i++){
+                currentData.get("jam").add(jamList.get(i).deepClone());
+            }
             result.put(currentTime,currentData);
             currentTime++;
-            if(currentTime>500)
-                break;
+            if(currentTime>500){
+                System.out.println("TLE");
+                return null;
+            }
         }
 
 
