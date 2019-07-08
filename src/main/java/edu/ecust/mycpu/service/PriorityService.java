@@ -57,7 +57,7 @@ public class PriorityService {
             System.out.println("就绪队列："+readyQueue);
             System.out.println("完成队列："+finishList);
             System.out.println("阻塞队列："+jamList);
-            if(runningList.isEmpty()&&unreachedList.isEmpty()&&readyQueue.isEmpty()){
+            if(runningList.isEmpty()&&unreachedList.isEmpty()&&readyQueue.isEmpty()&&jamList.isEmpty()){
                 break;
             }
             /*
