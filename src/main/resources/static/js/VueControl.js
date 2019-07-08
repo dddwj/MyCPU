@@ -1,4 +1,5 @@
 var PCBs;
+var temp;
 
 // 仪表盘option
 var gauge_opt = {
@@ -264,6 +265,7 @@ var app = new Vue({
                         "name": PCB.name,
                         "prio": PCB.prio,
                         "arrivalTime": PCB.arrivalTime,
+                        "progress": Math.round(PCB.cpuTime / PCB.serviceTime * 100),
                         "remainNeedTime": PCB.remainNeedTime,
                         "cpuTime": PCB.cpuTime,
                         "round": PCB.round,
@@ -363,6 +365,8 @@ var app = new Vue({
             this.addPCBForm.cpuTime = 0;
             this.addPCBForm.remainNeedTime = this.addPCBForm.serviceTime;
             this.blockupPCBTable.push(JSON.parse(JSON.stringify(this.addPCBForm)));
+            // 在当秒，将新增的进程加入到就绪队列中
+            PCBs['' + this.current_time]["blockup"].push(JSON.parse(JSON.stringify(this.addPCBForm)));
             this.needInit = true;
             app.$message({
                 message: "添加成功！"
@@ -370,17 +374,27 @@ var app = new Vue({
         },
         deletePCBFormLine(index, row) {
             let PCB = row;
-            if (this.runPCBTable.indexOf(PCB) >= 0 )
+            if (this.runPCBTable.indexOf(PCB) >= 0 ) {
                 this.runPCBTable.splice(this.runPCBTable.indexOf(PCB), 1);
-            if (this.blockupPCBTable.indexOf(PCB) >= 0 )
+                PCBs[this.current_time]["run"].splice(PCBs[0]["run"].indexOf(PCB), 1);
+            }
+            if (this.blockupPCBTable.indexOf(PCB) >= 0 ) {
                 this.blockupPCBTable.splice(this.blockupPCBTable.indexOf(PCB), 1);
-            if (this.readyPCBTable.indexOf(PCB) >= 0 )
+                PCBs[this.current_time]["blockup"].splice(PCBs[0]["blockup"].indexOf(PCB), 1);
+            }
+            if (this.readyPCBTable.indexOf(PCB) >= 0 ) {
                 this.readyPCBTable.splice(this.readyPCBTable.indexOf(PCB), 1);
-            if (this.jamPCBTable.indexOf(PCB) >= 0 )
+                PCBs[this.current_time]["ready"].splice(PCBs[0]["ready"].indexOf(PCB), 1);
+            }
+            if (this.jamPCBTable.indexOf(PCB) >= 0 ) {
                 this.jamPCBTable.splice(this.jamPCBTable.indexOf(PCB), 1);
+                PCBs[this.current_time]["jam"].splice(PCBs[0]["jam"].indexOf(PCB), 1);
+            }
             this.needInit = true;
         },
         removeData() {
+            PCBs = [];
+            this.current_time = 0;
             this.runPCBTable = [];
             this.blockupPCBTable = [];
             this.readyPCBTable = [];
@@ -430,25 +444,21 @@ var app = new Vue({
         initServerDataAndList() {     // 获取服务器端生成的随机数据
             let url;
             if (this.alg == '1') {
-                url = "/postpost";
+                url = "/FCFSData";
             }
             if (this.alg == '2') {
                 url = "/RRData";
             }
             if (this.alg == '3') {
-                url = "/FCFSData";
+                url = "/PriorityData";
+            }
+            if (this.alg == '4') {
+                url = "/SJFData";
             }
             let data = {
                 "currentTime": this.current_time,
                 "round": this.round,
                 "limitNum": this.limitNum,
-            };
-            data[''+this.current_time] = {
-                "blockup": this.blockupPCBTable,
-                "ready": this.readyPCBTable,
-                "run": this.runPCBTable,
-                "finish": this.finishPCBTable,
-                "jam": this.jamPCBTable,
             };
             if(this.current_time == 0)
                 data['0'] = {
@@ -458,6 +468,10 @@ var app = new Vue({
                     "finish": [],
                     "jam": []
                 };
+            else {
+                console.log("当前不是初始状态，不该在此接口获取数据。")
+                return;
+            }
             // 获取后台数据
             let app = this;
             $.ajax({
@@ -483,9 +497,61 @@ var app = new Vue({
                 }
             });
         },
-        updateData() {
-            this.initServerDataAndList();
-        }
+        updateServerDataAndList() {
+            let url;
+            if (this.alg == '1') {
+                url = "/FCFSData";
+            }
+            if (this.alg == '2') {
+                url = "/RRData";
+            }
+            if (this.alg == '3') {
+                url = "/PriorityData";
+            }
+            if (this.alg == '4') {
+                url = "/SJFData";
+            }
+            let data = {
+                "currentTime": this.current_time,
+                "round": this.round,
+                "limitNum": this.limitNum,
+            };
+            data[''+this.current_time] = {
+                "blockup": this.blockupPCBTable,
+                "ready": this.readyPCBTable,
+                "run": this.runPCBTable,
+                "finish": this.finishPCBTable,
+                "jam": this.jamPCBTable,
+            };
+            // 获取后台数据
+            let app = this;
+            $.ajax({
+                url: url,
+                type: "post",
+                async: false,  // 取消ajax异步功能，防止ajax外部得不到服务器的返回值
+                dataType: "json",
+                data: JSON.stringify(data),
+                success: function (res) {
+                    let new_PCBs = res;
+                    let length = Object.keys(new_PCBs).length;
+                    for (var i = 0; i < length; i++) {
+                        let time = app.current_time + 1 + i;
+                        PCBs['' + time] = res['' + time];
+                    }
+                    app.showLists(app.current_time);
+                    app.needInit = false;
+                    app.visible = false;
+                },
+                error: function (res) {
+                    app.$message({
+                        type: "warning",
+                        message: "服务器发生错误！"
+                    });
+                    console.log(res);
+                    app.visible = false;
+                }
+            });
+        },
     },
     mounted: function () {
         this.initLocalDataAndList();

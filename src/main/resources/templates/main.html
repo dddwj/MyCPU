@@ -65,11 +65,11 @@
                             <el-menu-item index="1-2" @click="current_time += 1" :disabled="needInit"><i class="el-icon-arrow-right"></i>第{{current_time + 1}}秒</el-menu-item>
                             <el-menu-item index="1-1" @click="current_time -= 1" v-if="current_time > 0" :disabled="needInit"><i class="el-icon-arrow-left"></i>第{{current_time - 1}}秒</el-menu-item>
                             <el-menu-item index="1-6" @click="pause()" :disabled="needInit"><i class="el-icon-video-pause"></i>暂停</el-menu-item>
-                            <el-menu-item index="1-7" @click="updateData" :disabled="!needInit"><i class="el-icon-remove"></i>应用更改</el-menu-item>
+                            <el-menu-item index="1-7" @click="updateServerDataAndList" :disabled="!needInit"><i class="el-icon-remove"></i>应用更改</el-menu-item>
                             <el-menu-item index="1-4" @click="visible = true"><i class="el-icon-circle-plus"></i>新增进程</el-menu-item>
                             <el-menu-item index="1-5" @click="$message({type: 'warning', message: '请在表格中操作'})"><i class="el-icon-remove"></i>删除进程</el-menu-item>
-                            <el-menu-item index="1-8"><i class="el-icon-remove"></i>算法对比</el-menu-item>
-                            <el-menu-item index="1-9" @click="removeData"><i class="el-icon-remove"></i>清除数据</el-menu-item>
+                            <el-menu-item index="1-8"><i class="el-icon-sort"></i>算法对比</el-menu-item>
+                            <el-menu-item index="1-9" @click="removeData"><i class="el-icon-refresh"></i>清除数据</el-menu-item>
                         </el-menu-item-group>
                     </el-submenu>
                     <el-submenu index="2">
@@ -83,6 +83,7 @@
                             <el-menu-item index="2-2"><i class="el-icon-s-unfold"></i>就绪队列</el-menu-item>
                             <el-menu-item index="2-3"><i class="el-icon-s-claim"></i>完成队列</el-menu-item>
                             <el-menu-item index="2-4"><i class="el-icon-umbrella"></i>未到达队列</el-menu-item>
+                            <el-menu-item index="2-5"><i class="el-icon-download"></i>阻塞队列</el-menu-item>
                         </el-menu-item-group>
                     </el-submenu>
                 </el-menu>
@@ -97,7 +98,7 @@
                     <!--</el-row>-->
                     <el-row>
                         <el-col :span="15">
-                            <el-row v-if="runPCBTable">
+                            <el-row v-if="runPCBTable" id="runPCBRow">
                                 <el-table
                                         :data="runPCBTable"
                                         style="width: 100%"
@@ -169,7 +170,7 @@
                             <el-row v-else>
                                 还没有在运行的进程
                             </el-row>
-                            <el-row v-if="readyPCBTable">
+                            <el-row v-if="readyPCBTable" id="readyPCBRow">
                                 <el-table
                                         :data="readyPCBTable"
                                         style="width: 100%"
@@ -242,7 +243,7 @@
                             <el-row v-else>
                                 还没有就绪的进程
                             </el-row>
-                            <el-row v-if="jamPCBTable">
+                            <el-row v-if="jamPCBTable" id="jamPCBRow">
                                 <el-table
                                         :data="jamPCBTable"
                                         style="width: 100%"
@@ -327,7 +328,7 @@
                     <el-row :gutter="10">
                         <el-col :span="10">
                             <h4>未到达队列</h4>
-                            <el-row v-if="blockupPCBTable">
+                            <el-row v-if="blockupPCBTable" id="blockupPCBRow">
                                 <el-table
                                         :data="blockupPCBTable"
                                         style="width: 100%;"
@@ -389,7 +390,7 @@
                         </el-col>
                         <el-col :span="14">
                             <h4>完成队列</h4>
-                            <el-row v-if="finishPCBTable">
+                            <el-row v-if="finishPCBTable" id="finishPCBRow">
                                 <el-table
                                         :data="finishPCBTable"
                                         style="width: 100%"
@@ -407,7 +408,7 @@
                                             label="进程"
                                             prop="name">
                                         <template slot-scope="scope">
-                                            <el-tag style="font-size: larger;" v-text="scope.row.name"></el-tag>
+                                            <el-tag type="success" style="font-size: larger;" v-text="scope.row.name"></el-tag>
                                         </template>
                                     </el-table-column>
                                     <el-table-column
