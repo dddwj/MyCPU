@@ -52,15 +52,18 @@ public class PriorityController {
             ArrayList<PCB> unreachedList = new ArrayList<>();
             unreachedList.addAll(result.get("blockup"));
             ArrayList<PCB> readyList = new ArrayList<>();
-            unreachedList.addAll(result.get("ready"));
+            readyList.addAll(result.get("ready"));
             ArrayList<PCB> finishList = new ArrayList<>();
-            unreachedList.addAll(result.get("finish"));
+            finishList.addAll(result.get("finish"));
             ArrayList<PCB> runningList = new ArrayList<>();
-            unreachedList.addAll(result.get("run"));
+            runningList.addAll(result.get("run"));
             ArrayList<PCB> jamList = new ArrayList<>();
-            unreachedList.addAll(result.get("jam"));
+            jamList.addAll(result.get("jam"));
+            System.out.println("就绪："+readyList);
             System.out.println("已完成："+finishList);
             System.out.println("正在运行："+runningList);
+            System.out.println("jam："+jamList);
+            System.out.println("未到达："+unreachedList);
             if(unreachedList.isEmpty()){
                 unreachedList = RandomProcess.getRandomUnreachedProcess(processNum);
             }
