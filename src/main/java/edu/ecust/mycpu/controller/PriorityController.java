@@ -27,7 +27,7 @@ public class PriorityController {
     PriorityService priorityService;
 
     @ResponseBody
-    @PostMapping("/postpost")
+    @PostMapping("/PriorityData")
     public Map<Integer, Map<String, List<PCB>>> priorityData(@RequestBody String data){
         try {
             data = java.net.URLDecoder.decode(data,"UTF-8");
@@ -59,6 +59,8 @@ public class PriorityController {
             unreachedList.addAll(result.get("run"));
             ArrayList<PCB> jamList = new ArrayList<>();
             unreachedList.addAll(result.get("jam"));
+            System.out.println("已完成："+finishList);
+            System.out.println("正在运行："+runningList);
             if(unreachedList.isEmpty()){
                 unreachedList = RandomProcess.getRandomUnreachedProcess(processNum);
             }
