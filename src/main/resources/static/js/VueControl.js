@@ -376,8 +376,10 @@ var app = new Vue({
             let PCB = row;
             if (this.runPCBTable.indexOf(PCB) >= 0 )
                 this.runPCBTable.splice(this.runPCBTable.indexOf(PCB), 1);
-            if (this.blockupPCBTable.indexOf(PCB) >= 0 )
+            if (this.blockupPCBTable.indexOf(PCB) >= 0 ) {
                 this.blockupPCBTable.splice(this.blockupPCBTable.indexOf(PCB), 1);
+                PCBs[this.current_time]["blockup"].splice(PCBs[0]["blockup"].indexOf(PCB), 1);
+            }
             if (this.readyPCBTable.indexOf(PCB) >= 0 )
                 this.readyPCBTable.splice(this.readyPCBTable.indexOf(PCB), 1);
             if (this.jamPCBTable.indexOf(PCB) >= 0 )
@@ -435,13 +437,16 @@ var app = new Vue({
         initServerDataAndList() {     // 获取服务器端生成的随机数据
             let url;
             if (this.alg == '1') {
-                url = "/postpost";
+                url = "/prioritydata";
             }
             if (this.alg == '2') {
                 url = "/RRData";
             }
             if (this.alg == '3') {
                 url = "/FCFSData";
+            }
+            if (this.alg == '4') {
+                url = "/SJFData";
             }
             let data = {
                 "currentTime": this.current_time,
@@ -485,13 +490,10 @@ var app = new Vue({
                 }
             });
         },
-        updateData() {
-            this.updateServerDataAndList();
-        },
         updateServerDataAndList() {
             let url;
             if (this.alg == '1') {
-                url = "/FCFSData";
+                url = "/prioritydata";
             }
             if (this.alg == '2') {
                 url = "/RRData";
@@ -500,7 +502,7 @@ var app = new Vue({
                 url = "/FCFSData";
             }
             if (this.alg == '4') {
-                url = "/";
+                url = "/SJFData";
             }
             let data = {
                 "currentTime": this.current_time,

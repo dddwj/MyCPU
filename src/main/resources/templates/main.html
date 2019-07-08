@@ -65,7 +65,7 @@
                             <el-menu-item index="1-2" @click="current_time += 1" :disabled="needInit"><i class="el-icon-arrow-right"></i>第{{current_time + 1}}秒</el-menu-item>
                             <el-menu-item index="1-1" @click="current_time -= 1" v-if="current_time > 0" :disabled="needInit"><i class="el-icon-arrow-left"></i>第{{current_time - 1}}秒</el-menu-item>
                             <el-menu-item index="1-6" @click="pause()" :disabled="needInit"><i class="el-icon-video-pause"></i>暂停</el-menu-item>
-                            <el-menu-item index="1-7" @click="updateData" :disabled="!needInit"><i class="el-icon-remove"></i>应用更改</el-menu-item>
+                            <el-menu-item index="1-7" @click="updateServerDataAndList" :disabled="!needInit"><i class="el-icon-remove"></i>应用更改</el-menu-item>
                             <el-menu-item index="1-4" @click="visible = true"><i class="el-icon-circle-plus"></i>新增进程</el-menu-item>
                             <el-menu-item index="1-5" @click="$message({type: 'warning', message: '请在表格中操作'})"><i class="el-icon-remove"></i>删除进程</el-menu-item>
                             <el-menu-item index="1-8"><i class="el-icon-remove"></i>算法对比</el-menu-item>
