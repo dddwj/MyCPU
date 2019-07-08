@@ -39,7 +39,10 @@ public class PriorityController {
         //将第一层Map转化出来
         Map allData = JSON.parseObject(currentDataMap,Map.class);
         //获取当前时间
-        Integer currentTime = Integer.parseInt(String.valueOf(allData.get("current_time")));
+        Integer currentTime = Integer.parseInt(String.valueOf(allData.get("currentTime")));
+        System.out.println(currentTime);
+        //获取进程个数
+        Integer processNum = Integer.parseInt(String.valueOf(allData.get("limitNum")));
         //获取当前队列JSON字符串
         String currentDataStr = String.valueOf(allData.get(String.valueOf(currentTime)));
         Map<String, List<PCB>> result = JSONObject.parseObject(currentDataStr)
@@ -57,7 +60,7 @@ public class PriorityController {
             ArrayList<PCB> jamList = new ArrayList<>();
             unreachedList.addAll(result.get("jam"));
             if(unreachedList.isEmpty()){
-                unreachedList = RandomProcess.getRandomUnreachedProcess(10);
+                unreachedList = RandomProcess.getRandomUnreachedProcess(processNum);
             }
             return priorityService.Priority(unreachedList,readyList,finishList,runningList,jamList,currentTime);
         } catch (IOException e) {

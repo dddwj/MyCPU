@@ -40,6 +40,10 @@ public class PriorityService {
         }
         Map<Integer, Map<String, List<PCB>>> result = new HashMap<>();
 
+        if(currentTime!=0){
+            currentTime++;
+        }
+
         /*
         模拟过程
          */
@@ -52,6 +56,7 @@ public class PriorityService {
             System.out.println("未到达队列："+unreachedList);
             System.out.println("就绪队列："+readyQueue);
             System.out.println("完成队列："+finishList);
+            System.out.println("阻塞队列："+jamList);
             if(runningList.isEmpty()&&unreachedList.isEmpty()&&readyQueue.isEmpty()){
                 break;
             }
@@ -65,6 +70,22 @@ public class PriorityService {
                         readyQueue.add(unreachedProcess);
                         unreachedProcess.setState(State.READY);
                         unreachedList.remove(unreachedProcess);
+                        i--;
+                    }
+                }
+            }
+
+            /*
+            遍历阻塞队列，对于每一个进程，随即判断是否取消阻塞。
+            若取消阻塞，将其状态修改为READY，并将其从阻塞队列中取出，放入就绪队列。
+             */
+            if(!jamList.isEmpty()){
+                for(int i=0; i<jamList.size();i++){
+                    PCB jamProcess = jamList.get(i);
+                    if(Math.random()*100+1<15){
+                        readyQueue.add(jamProcess);
+                        jamProcess.setState(State.READY);
+                        jamList.remove(jamProcess);
                         i--;
                     }
                 }
