@@ -14,7 +14,7 @@ import java.util.*;
 @Service
 public class PriorityService {
 
-    public Map<Integer, Map<String, List<PCB>>> Priority(ArrayList<PCB> unreachedList, ArrayList<PCB> readyList, ArrayList<PCB> finishList, ArrayList<PCB> runningList, ArrayList<PCB> jamList, Integer currentTime) throws IOException, ClassNotFoundException {
+    public Map<Integer, Map<String, List<PCB>>> Priority(ArrayList<PCB> unreachedList, ArrayList<PCB> readyList, ArrayList<PCB> finishList, ArrayList<PCB> runningList, ArrayList<PCB> jamList, Integer currentTime, boolean reemptive) throws IOException, ClassNotFoundException {
         Integer processNum = 20;
         /*
         若发现某个进程的PCB为空，直接返回错误
@@ -116,6 +116,20 @@ public class PriorityService {
                     runningList.remove(0);
                     runningProcess.setState(State.BLOCK_UP);
                     jamList.add(runningProcess);
+                }
+            }
+            /*
+            抢占式算法中：
+            若运行队列不为空，判断就绪队列中是否存在优先级更高的进程，若存在，取出运行队列中的进程，使运行队列为空
+             */
+            if(reemptive){
+                if(!runningList.isEmpty()&&!readyQueue.isEmpty()){
+                    PCB runningProcess = runningList.get(0);
+                    if(readyQueue.iterator().next().getPrio()>runningProcess.getPrio()){
+                        runningList.remove(0);
+                        runningProcess.setState(State.READY);
+                        readyQueue.add(runningProcess);
+                    }
                 }
             }
 

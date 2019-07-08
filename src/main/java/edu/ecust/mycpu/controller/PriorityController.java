@@ -64,10 +64,10 @@ public class PriorityController {
             System.out.println("正在运行："+runningList);
             System.out.println("jam："+jamList);
             System.out.println("未到达："+unreachedList);
-            if(unreachedList.isEmpty()){
+            if(currentTime==0){
                 unreachedList = RandomProcess.getRandomUnreachedProcess(processNum);
             }
-            return priorityService.Priority(unreachedList,readyList,finishList,runningList,jamList,currentTime);
+            return priorityService.Priority(unreachedList,readyList,finishList,runningList,jamList,currentTime,true);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
