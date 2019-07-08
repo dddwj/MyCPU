@@ -471,7 +471,6 @@ var app = new Vue({
         },
         removeData() {
             PCBs = [];
-            this.current_time = 0;
             this.runPCBTable = [];
             this.blockupPCBTable = [];
             this.readyPCBTable = [];
@@ -480,7 +479,10 @@ var app = new Vue({
             heatmap_opt.series[0].data = [];
             this.heatmapChart.setOption(heatmap_opt);
             waterfall_opt.series[0].data = [];
+            waterfall_opt.series[1].data = [];
+            waterfall_opt.series[2].data = [];
             this.waterfallChart.setOption(waterfall_opt);
+            this.current_time = 0;
         },
         getSummaries(param) {
             const {columns, data} = param;
@@ -646,6 +648,8 @@ var app = new Vue({
     watch: {
         current_time: {
             handler(newVal, oldVal) {
+                if(newVal == 0)
+                    return;
                 this.showLists(newVal);
             }
         },
