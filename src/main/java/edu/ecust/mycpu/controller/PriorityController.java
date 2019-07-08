@@ -27,7 +27,7 @@ public class PriorityController {
     PriorityService priorityService;
 
     @ResponseBody
-    @PostMapping("/PriorityData")
+    @PostMapping("/postpost")
     public Map<Integer, Map<String, List<PCB>>> priorityData(@RequestBody String data){
         try {
             data = java.net.URLDecoder.decode(data,"UTF-8");
