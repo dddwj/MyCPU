@@ -63,7 +63,6 @@ public class PriorityController {
             System.out.println("已完成："+finishList);
             System.out.println("正在运行："+runningList);
             System.out.println("jam："+jamList);
-            System.out.println("未到达："+unreachedList);
             if(currentTime==0){
                 unreachedList = RandomProcess.getRandomUnreachedProcess(processNum);
             }
