@@ -374,25 +374,32 @@ var app = new Vue({
         },
         deletePCBFormLine(index, row) {
             let PCB = row;
-            if (this.runPCBTable.indexOf(PCB) >= 0 )
+            if (this.runPCBTable.indexOf(PCB) >= 0 ) {
                 this.runPCBTable.splice(this.runPCBTable.indexOf(PCB), 1);
+                PCBs[this.current_time]["run"].splice(PCBs[0]["run"].indexOf(PCB), 1);
+            }
             if (this.blockupPCBTable.indexOf(PCB) >= 0 ) {
                 this.blockupPCBTable.splice(this.blockupPCBTable.indexOf(PCB), 1);
                 PCBs[this.current_time]["blockup"].splice(PCBs[0]["blockup"].indexOf(PCB), 1);
             }
-            if (this.readyPCBTable.indexOf(PCB) >= 0 )
+            if (this.readyPCBTable.indexOf(PCB) >= 0 ) {
                 this.readyPCBTable.splice(this.readyPCBTable.indexOf(PCB), 1);
-            if (this.jamPCBTable.indexOf(PCB) >= 0 )
+                PCBs[this.current_time]["ready"].splice(PCBs[0]["ready"].indexOf(PCB), 1);
+            }
+            if (this.jamPCBTable.indexOf(PCB) >= 0 ) {
                 this.jamPCBTable.splice(this.jamPCBTable.indexOf(PCB), 1);
+                PCBs[this.current_time]["jam"].splice(PCBs[0]["jam"].indexOf(PCB), 1);
+            }
             this.needInit = true;
         },
         removeData() {
+            PCBs = [];
+            this.current_time = 0;
             this.runPCBTable = [];
             this.blockupPCBTable = [];
             this.readyPCBTable = [];
             this.jamPCBTable = [];
             this.finishPCBTable = [];
-            this.current_time = 0;
         },
         getSummaries(param) {
             const {columns, data} = param;
@@ -437,13 +444,13 @@ var app = new Vue({
         initServerDataAndList() {     // 获取服务器端生成的随机数据
             let url;
             if (this.alg == '1') {
-                url = "/prioritydata";
+                url = "/FCFSData";
             }
             if (this.alg == '2') {
                 url = "/RRData";
             }
             if (this.alg == '3') {
-                url = "/FCFSData";
+                url = "/PriorityData";
             }
             if (this.alg == '4') {
                 url = "/SJFData";
@@ -493,13 +500,13 @@ var app = new Vue({
         updateServerDataAndList() {
             let url;
             if (this.alg == '1') {
-                url = "/prioritydata";
+                url = "/FCFSData";
             }
             if (this.alg == '2') {
                 url = "/RRData";
             }
             if (this.alg == '3') {
-                url = "/FCFSData";
+                url = "/PriorityData";
             }
             if (this.alg == '4') {
                 url = "/SJFData";
