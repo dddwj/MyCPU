@@ -233,8 +233,8 @@ public class FCFSService {
             }
 
             //超时就跳出循环
-            if(currentTime==200)
-                return null;
+//            if(currentTime==200)
+//                return null;
 
             Map<String,List<PCB>> currentData = new HashMap<>();
             List<PCB> ur = new LinkedList<>();

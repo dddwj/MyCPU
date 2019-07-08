@@ -108,7 +108,7 @@ public class RoundListService {
     public Map<Integer,Map<String,List<PCB>>> run() throws IOException, ClassNotFoundException {
         while (true){
             //看做模拟运行已结束
-            if(unreachedList.isEmpty()&&readyList.isEmpty()&&runList.isEmpty())
+            if(unreachedList.isEmpty()&&readyList.isEmpty()&&runList.isEmpty()&&jamList.isEmpty())
                 return allData;
             //将已经到达的进程放入就绪队列
             if(!unreachedList.isEmpty()){

@@ -118,8 +118,8 @@ var waterfall_opt = {
         {
             type: 'value',
             name: '带权周转时间',
-            min: 2,
-            max: 12,
+            min: 1,
+            max: 21,
             interval: 10,
             axisLabel: {
                 formatter: '{value}秒'
@@ -175,6 +175,78 @@ var waterfall_opt = {
     ]
 };
 
+var heatmap_opt = {
+    title: {
+        text: '进程运行情况',
+        // textAlign: 'center',
+    },
+    toolbox: {
+        show: true,
+        feature: {
+            mark: {show: true},
+            dataView: {show: true, readOnly: false},
+            magicType: {
+                show: true,
+                type: ['pie', 'funnel']
+            },
+            restore: {show: true},
+            saveAsImage: {show: true}
+        }
+    },
+    tooltip: {
+        position: 'top',
+        formatter: function (params, ticket, callback) {
+            return '进程'+ params['data'][2]
+        }
+    },
+    xAxis: {
+        type: 'category',
+        data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+        splitArea: {
+            show: true
+        }
+    },
+    yAxis: {
+        // axisLabel: {formatter: function() {return "";}},
+        type: 'category',
+        data: [1, 21, 41, 61, 81],
+        splitArea: {
+            show: true
+        }
+    },
+    visualMap: {
+        type: 'continuous',
+        min: 0,
+        max: 20,
+        calculable: true,
+        orient: 'horizontal',
+        left: 'center',
+        text: ["进程PID"],
+        color: ['orangered','yellow','lightskyblue']
+        // inRange: {
+        //     colorHue: [0, 360],
+        //     colorSaturation: [0.5],
+        //     colorLightness: [1]
+        // }
+    },
+    series: [{
+        name: '当前进程',
+        type: 'heatmap',
+        data: [],
+        label: {
+            normal: {
+                show: true
+            }
+        },
+        itemStyle: {
+            emphasis: {
+                shadowBlur: 10,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+        }
+    }]
+};
+
 
 
 var app = new Vue({
@@ -221,6 +293,11 @@ var app = new Vue({
             this.waterfallChart = echarts.init(document.getElementById('waterfall'));
             window.addEventListener("resize", this.waterfallChart.resize);
             this.waterfallChart.setOption(waterfall_opt);
+        },
+        drawHeatMap() {
+            this.heatmapChart = echarts.init(document.getElementById('haetmap'));
+            window.addEventListener("resize", this.heatmapChart.resize);
+            this.heatmapChart.setOption(heatmap_opt);
         },
         showLists(time) {
             this.showRunPCBTable(time);
@@ -400,6 +477,10 @@ var app = new Vue({
             this.readyPCBTable = [];
             this.jamPCBTable = [];
             this.finishPCBTable = [];
+            heatmap_opt.series[0].data = [];
+            this.heatmapChart.setOption(heatmap_opt);
+            waterfall_opt.series[0].data = [];
+            this.waterfallChart.setOption(waterfall_opt);
         },
         getSummaries(param) {
             const {columns, data} = param;
@@ -459,6 +540,7 @@ var app = new Vue({
                 "currentTime": this.current_time,
                 "round": this.round,
                 "limitNum": this.limitNum,
+                "isPreemptive": this.isPreemptive
             };
             if(this.current_time == 0)
                 data['0'] = {
@@ -515,6 +597,7 @@ var app = new Vue({
                 "currentTime": this.current_time,
                 "round": this.round,
                 "limitNum": this.limitNum,
+                "isPreemptive": this.isPreemptive
             };
             data[''+this.current_time] = {
                 "blockup": this.blockupPCBTable,
@@ -558,6 +641,7 @@ var app = new Vue({
         this.drawGauge();
         this.drawRose();
         this.drawWaterFall();
+        this.drawHeatMap();
     },
     watch: {
         current_time: {
@@ -580,6 +664,14 @@ var app = new Vue({
                         message: "模拟运行结束！"
                     })
                 }
+
+                // 更新heatmap数据
+                if (typeof(newVal[0]) != "undefined") {      // 如果存在正在运行的进程
+                    heatmap_opt.series[0].data.push([(this.current_time - 1) % 20, Math.floor((this.current_time - 1)/20), newVal[0].pid]);
+                } else {
+                    heatmap_opt.series[0].data.push([(this.current_time - 1) % 20, Math.floor((this.current_time - 1)/20), '-']);
+                }
+                this.heatmapChart.setOption(heatmap_opt);
             },
             deep: true
         },

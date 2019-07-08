@@ -91,11 +91,6 @@
 
             <el-container>
                 <el-main>
-                    <!--<h3>运行过程</h3>-->
-                    <!--<el-row>-->
-
-
-                    <!--</el-row>-->
                     <el-row>
                         <el-col :span="15">
                             <el-row v-if="runPCBTable" id="runPCBRow">
@@ -323,8 +318,6 @@
                     </el-row>
 
 
-
-
                     <el-row :gutter="10">
                         <el-col :span="10">
                             <h4>未到达队列</h4>
@@ -455,32 +448,20 @@
                         </el-col>
                     </el-row>
 
-
-
-
-
-
-
                     <el-divider><i class="el-icon-user"></i></el-divider>
-                    <el-row>
-                        <el-col :span="12">
-                            <div id="waterfall" style="height: 350px;"></div>
+
+                    <el-row :gutter="10">
+                        <el-col :span="16">
+                            <div id="haetmap" style="height: 440px;"></div>
                         </el-col>
-                        <el-col :span="12">
-                            <div id="haetmap" style="height: 350px;"></div>
+                        <el-col :span="8">
+                            <div id="waterfall" style="height: 450px;"></div>
                         </el-col>
                     </el-row>
-                    <div id="gauge" style="height: 250px;"></div>
-
-
+                    <div id="gauge" style="height: 250px;" hidden></div>
 
                 </el-main>
-
-
             </el-container>
-
-
-
         </el-container>
     </el-container>
 
@@ -535,6 +516,4 @@
 <link rel="stylesheet" href="../static/css/my_css.css">
 <!--VueJS Control-->
 <script src="../static/js/VueControl.js"></script>
-<!--ECharts Control-->
-<script src="../static/js/EChartsControl.js"></script>
 </html>
