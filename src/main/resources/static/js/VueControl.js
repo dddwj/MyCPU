@@ -122,7 +122,7 @@ var waterfall_opt = {
             max: 21,
             interval: 10,
             axisLabel: {
-                formatter: '{value}秒'
+                formatter: '{value}'
             }
         }
     ],
@@ -423,7 +423,7 @@ var app = new Vue({
                         "serviceTime": PCB.serviceTime,
                         "finishTime": PCB.finishTime,
                         "turnoverTime": PCB.turnoverTime,
-                        "weightedTurnoverTime": PCB.weightedTurnoverTime
+                        "weightedTurnoverTime": Math.round(PCB.weightedTurnoverTime * 100) / 100
                     });
                 }
                 return finishPCBTable;
@@ -481,6 +481,7 @@ var app = new Vue({
             waterfall_opt.series[0].data = [];
             waterfall_opt.series[1].data = [];
             waterfall_opt.series[2].data = [];
+            waterfall_opt.xAxis.data = [];
             this.waterfallChart.setOption(waterfall_opt);
             this.current_time = 0;
         },
