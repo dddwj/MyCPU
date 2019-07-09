@@ -185,8 +185,6 @@ public class PriorityService {
                 return null;
             }
         }
-
-
         return result;
     }
 }
