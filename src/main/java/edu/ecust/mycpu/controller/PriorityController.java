@@ -45,7 +45,9 @@ public class PriorityController {
         Integer processNum = Integer.parseInt(String.valueOf(allData.get("limitNum")));
         //获取当前队列JSON字符串
         String currentDataStr = String.valueOf(allData.get(String.valueOf(currentTime)));
-        Boolean isReemptive = Boolean.getBoolean(String.valueOf(allData.get("isReemptive")));
+        Boolean isPreemptive = Boolean.parseBoolean(String.valueOf(allData.get("isPreemptive")));
+        System.out.println(String.valueOf(allData.get("isPreemptive")));
+        System.out.println(isPreemptive);
         Map<String, List<PCB>> result = JSONObject.parseObject(currentDataStr)
                 .entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> JSONObject.parseArray(String.valueOf(entry.getValue()), PCB.class)));
@@ -67,7 +69,7 @@ public class PriorityController {
             if(currentTime==0){
                 unreachedList = RandomProcess.getRandomUnreachedProcess(processNum);
             }
-            return priorityService.Priority(unreachedList,readyList,finishList,runningList,jamList,currentTime,isReemptive);
+            return priorityService.Priority(unreachedList,readyList,finishList,runningList,jamList,currentTime,isPreemptive);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
