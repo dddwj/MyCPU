@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>模拟进程调度 MyCPU</title>
     <!--Element UI CSS-->
-    <!--<link rel="stylesheet" href="../static/css/element-ui/lib/theme-chalk/index.css">-->
+    <!--使用本地的css会导致无法加载图标 <link rel="stylesheet" href="../static/css/element-ui/lib/theme-chalk/index.css">-->
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
 
     <!--ECharts-->
@@ -17,11 +17,14 @@
     <!--<script src="https://unpkg.com/vue/dist/vue.js"></script>-->
 
     <!--Element UI JS-->
-    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <!--<script src="https://unpkg.com/element-ui/lib/index.js"></script>-->
+    <script src="../static/js/element-ui/lib/index.js"></script>
 
     <!--jQuery + RequireJS-->
     <!--<script data-main="../static/js/main.js" src="../static/js/require.js"></script>-->
     <script src="../static/js/jquery.js"></script>
+
+    <!--本地模拟进程数据，0秒以后缺少阻塞列表-->
     <script type="text/javascript" src="../static/js/localjson.js"></script>
 </head>
 <body>
@@ -68,7 +71,7 @@
                             <el-menu-item index="1-7" @click="updateServerDataAndList" :disabled="!needInit"><i class="el-icon-remove"></i>应用更改</el-menu-item>
                             <el-menu-item index="1-4" @click="visible = true"><i class="el-icon-circle-plus"></i>新增进程</el-menu-item>
                             <el-menu-item index="1-5" @click="$message({type: 'warning', message: '请在表格中操作'})"><i class="el-icon-remove"></i>删除进程</el-menu-item>
-                            <el-menu-item index="1-8"><i class="el-icon-sort"></i>算法对比</el-menu-item>
+                            <!--<el-menu-item index="1-8"><i class="el-icon-sort"></i>算法对比</el-menu-item>-->
                             <el-menu-item index="1-9" @click="removeData"><i class="el-icon-refresh"></i>清除数据</el-menu-item>
                         </el-menu-item-group>
                     </el-submenu>

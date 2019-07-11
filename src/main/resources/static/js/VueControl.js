@@ -554,7 +554,10 @@ var app = new Vue({
                     "jam": []
                 };
             else {
-                console.log("当前不是初始状态，不该在此接口获取数据。")
+                this.$message({
+                    type: "warning",
+                    message: "请先清除现有数据！"
+                });
                 return;
             }
             // 获取后台数据
