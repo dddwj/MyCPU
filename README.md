@@ -25,7 +25,7 @@
 - 浏览器访问`http://localhost:8080`
 
 ## Demo
-![主界面](//github.com/dddwj/MyCPU/raw/master/demo/主界面.png)
-![热力图和瀑布图](//github.com/dddwj/MyCPU/raw/master/demo/热力图和瀑布图.png)
-![新增进程](//github.com/dddwj/MyCPU/raw/master/demo/新增进程.png)
-![demo](//github.com/dddwj/MyCPU/raw/master/demo/demo.gif)
+![主界面](https://github.com/dddwj/MyCPU/blob/master/demo/%E4%B8%BB%E7%95%8C%E9%9D%A2.png)
+![热力图和瀑布图](https://github.com/dddwj/MyCPU/blob/master/demo/%E7%83%AD%E5%8A%9B%E5%9B%BE%E5%92%8C%E7%80%91%E5%B8%83%E5%9B%BE.png)
+![新增进程](https://github.com/dddwj/MyCPU/blob/master/demo/%E6%96%B0%E5%A2%9E%E8%BF%9B%E7%A8%8B.png)
+![demo](https://github.com/dddwj/MyCPU/blob/master/demo/demo.gif)
